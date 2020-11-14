@@ -1,0 +1,9 @@
+{
+  "name": "lambda-inversify-integration",
+  "version": "1.0.0",
+  "main": "index.js",
+  "types": "@types",
+  "repository": "https://github.com/AkasakiTomohiro/lambda-inversify-integration.git",
+  "author": "t-akasaki <t.akasaki.csharp@gmail.com>",
+  "license": "MIT"
+}
