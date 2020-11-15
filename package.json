@@ -8,6 +8,7 @@
   "author": "t-akasaki <t.akasaki.csharp@gmail.com>",
   "license": "MIT",
   "scripts": {
+    "prepublishOnly": "npm run build",
     "build": "tsc",
     "lint:fix": "eslint --fix"
   },
