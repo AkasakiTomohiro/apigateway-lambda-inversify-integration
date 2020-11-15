@@ -36,5 +36,7 @@
   "prettier.trailingComma": "none",
   "prettier.vueIndentScriptAndStyle": true,
   "importSorter.generalConfiguration.sortOnBeforeSave": true,
-  "vue3snippets.enable-compile-vue-file-on-did-save-code": false
+  "vue3snippets.enable-compile-vue-file-on-did-save-code": false,
+  "importSorter.importStringConfiguration.maximumNumberOfImportExpressionsPerLine.type": "newLineEachExpressionAfterCountLimit",
+  "importSorter.importStringConfiguration.tabSize": 2
 }
