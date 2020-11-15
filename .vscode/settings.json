@@ -39,5 +39,6 @@
   "importSorter.generalConfiguration.sortOnBeforeSave": true,
   "vue3snippets.enable-compile-vue-file-on-did-save-code": false,
   "importSorter.importStringConfiguration.maximumNumberOfImportExpressionsPerLine.type": "newLineEachExpressionAfterCountLimit",
-  "importSorter.importStringConfiguration.tabSize": 2
+  "importSorter.importStringConfiguration.tabSize": 2,
+  "typescript.tsdk": "node_modules/typescript/lib"
 }
