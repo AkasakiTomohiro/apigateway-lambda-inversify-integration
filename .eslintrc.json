@@ -1,0 +1,84 @@
+{
+  "extends": "./node_modules/gts",
+  "globals": {},
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
+  "env": { "jest/globals": true },
+  "plugins": ["jest"],
+  "rules": {
+    "node/no-unpublished-import": "off",
+    "node/no-extraneous-import": ["error"],
+    "@typescript-eslint/no-inferrable-types": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/ban-ts-ignore": "off",
+    "@typescript-eslint/explicit-function-return-type": [
+      "error",
+      {
+        "allowExpressions": true
+      }
+    ],
+    "@typescript-eslint/member-ordering": "error",
+    "@typescript-eslint/explicit-member-accessibility": "error",
+    "@typescript-eslint/array-type": [
+      "error",
+      {
+        "default": "array",
+        "readonly": "array"
+      }
+    ],
+    "@typescript-eslint/naming-convention": [
+      "error",
+      {
+        "selector": "interface",
+        "format": ["PascalCase"]
+      },
+      {
+        "selector": "class",
+        "format": ["PascalCase"]
+      },
+      {
+        "selector": "enum",
+        "format": ["PascalCase"]
+      },
+      {
+        "selector": "enumMember",
+        "format": ["PascalCase", "UPPER_CASE"]
+      },
+      {
+        "selector": "typeAlias",
+        "format": ["PascalCase"]
+      },
+      {
+        "selector": "function",
+        "format": ["camelCase"]
+      },
+      {
+        "selector": "method",
+        "format": ["camelCase"]
+      },
+      {
+        "selector": "variable",
+        "format": ["camelCase"]
+      },
+      {
+        "selector": "parameterProperty",
+        "format": ["camelCase"]
+      },
+      {
+        "selector": "property",
+        "format": ["PascalCase", "camelCase", "UPPER_CASE", "snake_case"],
+        "leadingUnderscore": "allow"
+      },
+      {
+        "selector": "parameter",
+        "format": ["camelCase"]
+      },
+      {
+        "selector": "typeParameter",
+        "format": ["PascalCase"],
+        "prefix": ["T", "U"]
+      }
+    ]
+  }
+}
