@@ -24,7 +24,8 @@
   "vetur.validation.template": false,
   "conventionalCommits.scopes": [
     "type",
-    "vscode"
+    "vscode",
+    "lib"
   ],
   "prettier.singleQuote": true,
   "npm.exclude": "packages/**",
