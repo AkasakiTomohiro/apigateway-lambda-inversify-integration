@@ -13,5 +13,6 @@
     "outDir": "dist",
     "declaration": true,
     "declarationDir": "@types"
-  }
+  },
+  "exclude": ["jest.setup.ts", "dist/*", "dist/**/*", "@types/*", "@types/**/*"]
 }
