@@ -12,7 +12,7 @@
     "baseUrl": ".",
     "outDir": "lib",
     "declaration": true,
-    "declarationDir": "@types"
+    "declarationDir": "lib"
   },
-  "exclude": ["jest.setup.ts", "dist/*", "dist/**/*", "@types/*", "@types/**/*"]
+  "exclude": ["jest.setup.ts", "lib/*", "lib/**/*"]
 }
