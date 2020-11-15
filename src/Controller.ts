@@ -70,57 +70,71 @@ export abstract class Controller<E> {
   }
 
   /**
-   * 認証を行う関数
+   * Authentication
    *
-   * @param  {APIGatewayProxyEvent} event API Gatewayから渡されたEventデータ
-   * @param  {Condition<E>} condition HTTPMethodに対応したイベント処理方法が記述されたオブジェクト
-   * @returns Promise<[authResult: E | undefined, err401: boolean, err500: boolean]>
+   * @param  {APIGatewayProxyEvent} event Event data passed from the API Gateway
+   * @param  {Condition<E>} condition Defining a process for each HTTP method
+   * @returns Promise<[E | undefined, boolean, boolean]>
+   * Tuple 1 {E | undefined} User Information
+   * Tuple 2 {boolean} 401 Unauthorize
+   * Tuple 3 {boolean} 500 Internal Server Error
    */
-  private async auth<E>(
-    event: APIGatewayProxyEvent,
-    condition: Condition<E>
-  ): Promise<[E | undefined, boolean, boolean]> {
-    if (condition.auth) {
+  private async auth(event: APIGatewayProxyEvent, condition: Condition<E>): Promise<[E | undefined, boolean, boolean]> {
+    if (condition.isAuthentication) {
       if (Controller.authenticationFunc === undefined) {
         return [undefined, false, true];
       } else {
         const [flag, authResult] = await Controller.authenticationFunc(event)
           .then(data => [true, data])
           .catch(() => [false, undefined]);
-        return [authResult, flag, false];
+        return [authResult, !flag, false];
       }
     } else {
-      return [undefined, true, false];
+      return [undefined, false, false];
     }
   }
 }
 
+/**
+ * Defining a process for each HTTP method
+ * @typeParam E - User Information
+ */
 export type Conditions<E> = {
   [key in HttpMethod]?: Condition<E>;
 };
 
 /**
  * HttpMethodに対応して実施する処理
+ * @typeParam E - User Information
+ * @typeParam T - HTTP Body
+ * @typeParam U - HTTP URL Path Parameter
+ * @typeParam K - HTTP URL Path Query Parameter
+ * @typeParam P - HTTP Header
  */
 export type Condition<E, T = any, U = any, K = any, P = any> = {
   /**
-   * 認証を行うか
+   * Do you perform the authentication before calling the function?
    */
-  auth: boolean;
+  isAuthentication: boolean;
 
   /**
-   * funcに渡す引数のバリデーション
+   * Function parameter validation
    */
   validation: IValidation<T, U, K, P>;
 
   /**
-   * 認証とバリデーションを抜けた、最終的な処理を実施する関数
+   * Functions to be executed by the API
    */
   func: CallFunction<E, T, U, K, P>;
 };
 
 /**
- * APIで呼び出される関数
+ * Functions to be executed by the API
+ * @typeParam E - User Information
+ * @typeParam T - HTTP Body
+ * @typeParam U - HTTP URL Path Parameter
+ * @typeParam K - HTTP URL Path Query Parameter
+ * @typeParam P - HTTP Header
  */
 export type CallFunction<E, T, U, K, P> = (
   /**
@@ -129,7 +143,7 @@ export type CallFunction<E, T, U, K, P> = (
   headers: P,
 
   /**
-   * パスパラメータ
+   * Path parameter
    */
   pathParameters?: U,
 
@@ -139,44 +153,44 @@ export type CallFunction<E, T, U, K, P> = (
   body?: T,
 
   /**
-   * Queryパラメータ
+   * URL Query Parameters
    */
   queryParameters?: K,
 
   /**
-   * 認証結果のオブジェクトが格納されている。
-   * @example ユーザーIDなど
+   * Authentication results, user information, etc.
    */
-  authResult?: E
+  userInfo?: E
 ) => Promise<APIGatewayProxyResult>;
 
 /**
- * バリデーションリスト
+ * Validation list
  */
 export interface IValidation<T, U, K, P> {
   /**
-   * Body用のバリデーター
+   * Validator for Body
    */
   bodyValidator: ApiRequestValidator<T>;
 
   /**
-   * URLParameter用のバリデーター
+   * Validator for URLParameter
    */
   paramValidator: ApiRequestValidator<U>;
 
   /**
-   * Query用のバリデーター
+   * Validator for Query
    */
   queryValidator: ApiRequestValidator<K>;
 
   /**
-   * Header用のバリデーター
+   * Validator for Header
    */
   headerValidator: ApiRequestValidator<P>;
 }
 
 /**
- * 認証を行う関数
- * @returns 認証結果で返却したいパラメータ(ユーザーIDなど)
+ * Authenticate function Type
+ * @returns Parameters you wish to return in the authentication results
+ * e.g. user ID
  */
 export type AuthenticationFunction<T = any> = (event: APIGatewayProxyEvent) => Promise<T>;
