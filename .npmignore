@@ -1,0 +1,10 @@
+src/
+.vscode/
+.lintstagedrc
+.huskyrc.json
+.prettierrc.js
+tsconfig.json
+tslint.json
+.commitlintrc.json
+.eslintignore
+.eslintrc.json
