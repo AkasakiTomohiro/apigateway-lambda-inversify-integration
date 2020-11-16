@@ -145,22 +145,22 @@ export type CallFunction<E, T, U, K, P> = (
   /**
    * Path parameter
    */
-  pathParameters?: U,
+  pathParameters: U | undefined,
 
   /**
    * Body
    */
-  body?: T,
+  body: T | undefined,
 
   /**
    * URL Query Parameters
    */
-  queryParameters?: K,
+  queryParameters: K | undefined,
 
   /**
    * Authentication results, user information, etc.
    */
-  userInfo?: E
+  userInfo: E | undefined
 ) => Promise<APIGatewayProxyResult>;
 
 /**
@@ -170,22 +170,22 @@ export interface IValidation<T, U, K, P> {
   /**
    * Validator for Body
    */
-  bodyValidator: Validator<T>;
+  bodyValidator?: Validator<T>;
 
   /**
    * Validator for URLParameter
    */
-  paramValidator: Validator<U>;
+  paramValidator?: Validator<U>;
 
   /**
    * Validator for Query
    */
-  queryValidator: Validator<K>;
+  queryValidator?: Validator<K>;
 
   /**
    * Validator for Header
    */
-  headerValidator: Validator<P>;
+  headerValidator?: Validator<P>;
 }
 
 /**
@@ -193,4 +193,6 @@ export interface IValidation<T, U, K, P> {
  * @returns Parameters you wish to return in the authentication results
  * e.g. user ID
  */
-export type AuthenticationFunction<T = any> = (event: APIGatewayProxyEvent) => Promise<T>;
+export type AuthenticationFunction<E = any> = (
+  event: APIGatewayProxyEvent
+) => Promise<[E | undefined, boolean, boolean]>;
