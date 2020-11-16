@@ -1,12 +1,12 @@
 import { Condition } from './Controller';
 import {
-  ApiRequestValidator,
   IArrayRequestValidator,
   IEnumRequestValidator,
   INumberRequestValidator,
   IObjectRequestValidator,
   IStringRequestValidator,
-  RequestValidator
+  Validator,
+  Validators
 } from './Validator';
 
 export class Validation {
@@ -42,13 +42,13 @@ export class Validation {
     return flag;
   }
 
-  private static validation<T>(param: T, validationList: ApiRequestValidator<T>): boolean {
+  private static validation<T>(param: T, validationList: Validator<T>): boolean {
     let result = true;
 
     const keyList: (keyof T)[] = Object.keys(validationList) as (keyof T)[];
     keyList.forEach(key => {
       let flag = true;
-      const validator: RequestValidator = validationList[key];
+      const validator: Validators = validationList[key];
 
       const paramExists = key in param;
 
@@ -57,31 +57,29 @@ export class Validation {
         flag = flag && paramExists;
       }
 
-      const value: any = param[key];
-
       // パラメータが存在している時はバリデーションチェック
       if (validator.type === 'string' && paramExists) {
-        flag = flag && Validation.stringValidation(value, validator);
+        flag = flag && Validation.stringValidation(param[key], validator);
       }
 
       if (validator.type === 'boolean' && paramExists) {
-        flag = flag && Validation.booleanValidation(value);
+        flag = flag && Validation.booleanValidation(param[key]);
       }
 
       if (validator.type === 'number' && paramExists) {
-        flag = flag && Validation.numberValidation(value, validator);
+        flag = flag && Validation.numberValidation(param[key], validator);
       }
 
       if (validator.type === 'object' && paramExists) {
-        flag = flag && Validation.objectValidation(value, validator);
+        flag = flag && Validation.objectValidation(param[key], validator);
       }
 
       if (validator.type === 'array' && paramExists) {
-        flag = flag && Validation.arrayValidation(value, validator);
+        flag = flag && Validation.arrayValidation(param[key], validator);
       }
 
       if (validator.type === 'enum' && paramExists) {
-        flag = flag && Validation.enumValidation(value, validator);
+        flag = flag && Validation.enumValidation(param[key], validator);
       }
 
       result = result && flag;
@@ -90,11 +88,15 @@ export class Validation {
     return result;
   }
 
-  private static enumValidation(param: string, validator: IEnumRequestValidator): boolean {
+  private static enumValidation(param: any, validator: IEnumRequestValidator): boolean {
     return validator.list.includes(param);
   }
 
-  private static arrayValidation(param: any[], validator: IArrayRequestValidator<any>): boolean {
+  private static arrayValidation(param: any, validator: IArrayRequestValidator<any>): boolean {
+    if (!Array.isArray(param)) {
+      return false;
+    }
+
     let flag = true;
 
     if (validator.minLength !== undefined) {
@@ -114,7 +116,11 @@ export class Validation {
     return flag;
   }
 
-  private static objectValidation(param: object, validator: IObjectRequestValidator<any>): boolean {
+  private static objectValidation(param: any, validator: IObjectRequestValidator<any>): boolean {
+    if (Array.isArray(param) || typeof param !== 'object') {
+      return false;
+    }
+
     let flag = true;
 
     if (validator.validator !== undefined) {
@@ -124,11 +130,15 @@ export class Validation {
     return flag;
   }
 
-  private static booleanValidation(param: boolean): boolean {
+  private static booleanValidation(param: any): boolean {
     return typeof param === 'boolean';
   }
 
-  private static numberValidation(param: number, validator: INumberRequestValidator): boolean {
+  private static numberValidation(param: any, validator: INumberRequestValidator): boolean {
+    if (typeof param !== 'number') {
+      return false;
+    }
+
     let flag = true;
 
     if (validator.integer) {
@@ -146,7 +156,11 @@ export class Validation {
     return flag;
   }
 
-  private static stringValidation(param: string, validator: IStringRequestValidator): boolean {
+  private static stringValidation(param: any, validator: IStringRequestValidator): boolean {
+    if (typeof param !== 'string') {
+      return false;
+    }
+
     let flag = true;
 
     if (validator.regExp !== undefined) {

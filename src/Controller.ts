@@ -2,7 +2,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
 import { HttpMethod } from './HttpMethod';
 import { Validation } from './Validation';
-import { ApiRequestValidator } from './Validator';
+import { Validator } from './Validator';
 
 export abstract class Controller<E> {
   public static badRequestResponse: APIGatewayProxyResult = {
@@ -170,22 +170,22 @@ export interface IValidation<T, U, K, P> {
   /**
    * Validator for Body
    */
-  bodyValidator: ApiRequestValidator<T>;
+  bodyValidator: Validator<T>;
 
   /**
    * Validator for URLParameter
    */
-  paramValidator: ApiRequestValidator<U>;
+  paramValidator: Validator<U>;
 
   /**
    * Validator for Query
    */
-  queryValidator: ApiRequestValidator<K>;
+  queryValidator: Validator<K>;
 
   /**
    * Validator for Header
    */
-  headerValidator: ApiRequestValidator<P>;
+  headerValidator: Validator<P>;
 }
 
 /**

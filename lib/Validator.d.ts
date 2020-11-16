@@ -33,7 +33,7 @@ export interface IEnumRequestValidator {
     readonly required: boolean;
     readonly list: readonly (string | number)[];
 }
-export declare type RequestValidator<T = any> = IStringRequestValidator | INumberRequestValidator | IBooleanRequestValidator | IEnumRequestValidator | IObjectRequestValidator<T> | IArrayRequestValidator<T>;
-export declare type ApiRequestValidator<T> = {
-    readonly [U in keyof T]-?: T[U] extends (infer R)[] ? R extends object ? RequestValidator<ApiRequestValidator<R>> : RequestValidator : T[U] extends object ? RequestValidator<ApiRequestValidator<T[U]>> : RequestValidator;
+export declare type Validators<T = any> = IStringRequestValidator | INumberRequestValidator | IBooleanRequestValidator | IEnumRequestValidator | IObjectRequestValidator<T> | IArrayRequestValidator<T>;
+export declare type Validator<T> = {
+    readonly [U in keyof T]-?: T[U] extends (infer R)[] ? R extends object ? Validators<Validator<R>> : Validators : T[U] extends object ? Validators<Validator<T[U]>> : Validators;
 };
