@@ -1,48 +1,75 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { injectable } from 'inversify';
 
 import { HttpMethod } from './HttpMethod';
 import { Validation } from './Validation';
 import { Validator } from './Validator';
 
-export abstract class Controller<E> {
+/**
+ * Methodに対応した処理を規定できるクラス
+ * @typeParam E - Authentication results, user information, etc.
+ */
+@injectable()
+export abstract class HttpMethodController<E> {
+  /**
+   * Objects returned in case of a validation error
+   */
   public static badRequestResponse: APIGatewayProxyResult = {
     statusCode: 400,
     body: 'Bad Request'
   };
 
+  /**
+   * The object to be returned when the authentication authorization function returns Unauthorize
+   */
   public static unauthorizeErrorResponse: APIGatewayProxyResult = {
     statusCode: 401,
     body: 'Unauthorize'
   };
 
+  /**
+   * Object to be returned in case of an error in an authentication function, etc.
+   */
   public static internalServerErrorResponse: APIGatewayProxyResult = {
     statusCode: 500,
     body: 'Internal Server Error'
   };
 
+  /**
+   * Authorization function
+   */
   public static authenticationFunc?: AuthenticationFunction = undefined;
 
   /**
-   * HTTPMethodに対応したイベント処理方法が記述されたオブジェクトリスト
+   * pre-processing definition for HttpMethod
    */
   private conditions: Conditions<E> = {};
 
+  /**
+   * Execute a function corresponding to the Method.
+   * @param event Event data passed from the API Gateway
+   * @returns Objects to be returned to APi Gateway
+   *          Success Response
+   *          - CallFunction success response
+   *          Error Response
+   *          - Bad Request
+   *          - Unauthorize
+   *          - Internal Server Error
+   */
   public async handler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
     const condition = this.conditions[event.httpMethod as HttpMethod];
 
     if (condition === undefined) {
-      return Controller.badRequestResponse;
+      return HttpMethodController.badRequestResponse;
     } else {
-      // 認証
       const [authResult, err401, err500] = await this.auth(event, condition);
       if (err401) {
-        return Controller.unauthorizeErrorResponse;
+        return HttpMethodController.unauthorizeErrorResponse;
       }
       if (err500) {
-        return Controller.internalServerErrorResponse;
+        return HttpMethodController.internalServerErrorResponse;
       }
 
-      // バリデーション
       const validationResult = await Validation.check(
         condition,
         event.headers,
@@ -51,19 +78,20 @@ export abstract class Controller<E> {
         event.queryStringParameters
       );
       if (!validationResult) {
-        return Controller.badRequestResponse;
+        return HttpMethodController.badRequestResponse;
       }
 
-      // 指定関数を呼び出す
-      return condition.func(event.headers, event.pathParameters, event.body, event.queryStringParameters, authResult);
+      return condition
+        .func(event.headers, event.pathParameters, event.body, event.queryStringParameters, authResult)
+        .catch(() => HttpMethodController.internalServerErrorResponse);
     }
   }
 
   /**
-   * HttpMethodに対応したイベントの定義を追加
+   * Added pre-processing definition for HttpMethod.
    *
-   * @param method どのHttpMethodのときに実施するか
-   * @param condition HTTPMethodに対応したイベント処理方法
+   * @param method Which HttpMethod is used for pre-processing
+   * @param condition Specifies function preprocessing for HttpMethod
    */
   protected setMethod(method: HttpMethod, condition: Condition<E>): void {
     this.conditions[method] = condition;
@@ -81,13 +109,13 @@ export abstract class Controller<E> {
    */
   private async auth(event: APIGatewayProxyEvent, condition: Condition<E>): Promise<[E | undefined, boolean, boolean]> {
     if (condition.isAuthentication) {
-      if (Controller.authenticationFunc === undefined) {
+      if (HttpMethodController.authenticationFunc === undefined) {
         return [undefined, false, true];
       } else {
-        const [flag, authResult] = await Controller.authenticationFunc(event)
-          .then(data => [true, data])
-          .catch(() => [false, undefined]);
-        return [authResult, !flag, false];
+        const result = await HttpMethodController.authenticationFunc(event).catch(
+          () => [undefined, false, true] as [undefined, boolean, boolean]
+        );
+        return result;
       }
     } else {
       return [undefined, false, false];
@@ -104,7 +132,7 @@ export type Conditions<E> = {
 };
 
 /**
- * HttpMethodに対応して実施する処理
+ * Specifies function preprocessing for HttpMethod
  * @typeParam E - User Information
  * @typeParam T - HTTP Body
  * @typeParam U - HTTP URL Path Parameter
@@ -118,7 +146,7 @@ export type Condition<E, T = any, U = any, K = any, P = any> = {
   isAuthentication: boolean;
 
   /**
-   * Function parameter validation
+   * Validation of function parameters
    */
   validation: IValidation<T, U, K, P>;
 
