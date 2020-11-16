@@ -6,7 +6,7 @@ import { Validation } from './Validation';
 import { Validator } from './Validator';
 
 /**
- * Methodに対応した処理を規定できるクラス
+ * A class that can define a process corresponding to the Method
  * @typeParam E - Authentication results, user information, etc.
  */
 @injectable()
