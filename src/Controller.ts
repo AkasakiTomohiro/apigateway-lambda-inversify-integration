@@ -82,7 +82,7 @@ export abstract class HttpMethodController<E> {
       }
 
       return condition
-        .func(event.headers, event.pathParameters, event.body, event.queryStringParameters, authResult)
+        .func(event.headers, event.pathParameters, event.body, event.queryStringParameters, authResult ?? ({} as E))
         .catch(() => HttpMethodController.internalServerErrorResponse);
     }
   }
@@ -93,7 +93,7 @@ export abstract class HttpMethodController<E> {
    * @param method Which HttpMethod is used for pre-processing
    * @param condition Specifies function preprocessing for HttpMethod
    */
-  protected setMethod(method: HttpMethod, condition: Condition<E>): void {
+  protected setMethod<T, U, K, P>(method: HttpMethod, condition: Condition<E, T, U, K, P>): void {
     this.conditions[method] = condition;
   }
 
@@ -173,22 +173,22 @@ export type CallFunction<E, T, U, K, P> = (
   /**
    * Path parameter
    */
-  pathParameters: U | undefined,
+  pathParameters: U,
 
   /**
    * Body
    */
-  body: T | undefined,
+  body: T,
 
   /**
    * URL Query Parameters
    */
-  queryParameters: K | undefined,
+  queryParameters: K,
 
   /**
    * Authentication results, user information, etc.
    */
-  userInfo: E | undefined
+  userInfo: E
 ) => Promise<APIGatewayProxyResult>;
 
 /**
