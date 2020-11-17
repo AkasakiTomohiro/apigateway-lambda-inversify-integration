@@ -1,4 +1,4 @@
-import { Condition } from './Controller';
+import { Condition } from './HttpMethodController';
 import {
   IArrayRequestValidator,
   IEnumRequestValidator,

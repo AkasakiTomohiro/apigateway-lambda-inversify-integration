@@ -1,6 +1,6 @@
 import { APIGatewayProxyResult } from 'aws-lambda';
 
-import { HttpMethodController } from '../../src/Controller';
+import { HttpMethodController } from '../../src/HttpMethodController';
 import { UserType } from '../User';
 
 export class TestIdController extends HttpMethodController<UserType> {
