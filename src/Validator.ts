@@ -10,8 +10,10 @@ export interface INumberRequestValidator {
   readonly type: 'number';
   readonly required: boolean;
   readonly integer: boolean;
-  readonly min?: number;
-  readonly max?: number;
+  readonly orLower?: number;
+  readonly orMore?: number;
+  readonly moreThan?: number;
+  readonly lessThan?: number;
 }
 
 export interface IBooleanRequestValidator {

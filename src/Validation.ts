@@ -145,12 +145,20 @@ export class Validation {
       flag = flag && Number.isInteger(param);
     }
 
-    if (validator.min !== undefined) {
-      flag = flag && param >= validator.min;
+    if (validator.orLower !== undefined) {
+      flag = flag && param <= validator.orLower;
     }
 
-    if (validator.max !== undefined) {
-      flag = flag && param <= validator.max;
+    if (validator.orMore !== undefined) {
+      flag = flag && param >= validator.orMore;
+    }
+
+    if (validator.lessThan !== undefined) {
+      flag = flag && param < validator.lessThan;
+    }
+
+    if (validator.moreThan !== undefined) {
+      flag = flag && param > validator.moreThan;
     }
 
     return flag;
