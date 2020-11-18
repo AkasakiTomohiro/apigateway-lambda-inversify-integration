@@ -71,7 +71,7 @@ export abstract class HttpMethodController<E> {
       }
 
       const validationResult = await Validation.check(
-        condition,
+        condition.validation,
         event.headers,
         event.pathParameters,
         event.body,

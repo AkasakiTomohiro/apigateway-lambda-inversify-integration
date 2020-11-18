@@ -1,4 +1,4 @@
-import { Condition } from './HttpMethodController';
+import { IValidation } from './HttpMethodController';
 import {
   IArrayRequestValidator,
   IEnumRequestValidator,
@@ -10,8 +10,8 @@ import {
 } from './Validator';
 
 export class Validation {
-  public static async check<E, T, U, K, P>(
-    condition: Condition<E, T, U, K, P>,
+  public static async check<T, U, K, P>(
+    validation: IValidation<T, U, K, P>,
     headers: P,
     pathParameters?: U,
     body?: T,
@@ -20,23 +20,23 @@ export class Validation {
     let flag = true;
 
     // Bodyのバリデーションチェック
-    if (condition.validation.bodyValidator !== undefined) {
-      flag = flag && Validation.validation(body, condition.validation.bodyValidator);
+    if (validation.bodyValidator !== undefined) {
+      flag = flag && Validation.validation(body, validation.bodyValidator);
     }
 
     // Paramのバリデーションチェック
-    if (condition.validation.paramValidator !== undefined) {
-      flag = flag && Validation.validation(pathParameters, condition.validation.paramValidator);
+    if (validation.paramValidator !== undefined) {
+      flag = flag && Validation.validation(pathParameters, validation.paramValidator);
     }
 
     // Queryのバリデーションチェック
-    if (condition.validation.queryValidator !== undefined) {
-      flag = flag && Validation.validation(queryParameters, condition.validation.queryValidator);
+    if (validation.queryValidator !== undefined) {
+      flag = flag && Validation.validation(queryParameters, validation.queryValidator);
     }
 
     // Headerのバリデーションチェック
-    if (condition.validation.headerValidator !== undefined) {
-      flag = flag && Validation.validation(headers, condition.validation.headerValidator);
+    if (validation.headerValidator !== undefined) {
+      flag = flag && Validation.validation(headers, validation.headerValidator);
     }
 
     return flag;
