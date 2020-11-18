@@ -1,5 +1,6 @@
 .prettierrc.js
 jest.config.js
+jest.setup.ts
 *.d.ts
 lib/
 node_modules
