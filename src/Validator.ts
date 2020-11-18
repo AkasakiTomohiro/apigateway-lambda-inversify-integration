@@ -53,6 +53,6 @@ export type Validator<T> = {
       ? Validators<Validator<R>>
       : Validators
     : T[U] extends object
-    ? Validators<Validator<T[U]>>
+    ? Validators<Validator<T[U]>> | Validators
     : Validators;
 };
