@@ -45,6 +45,10 @@ export class Validation {
   private static validation<T>(param: T, validationList: Validator<T>): boolean {
     let result = true;
 
+    if (Array.isArray(param) || typeof param !== 'object') {
+      return false;
+    }
+
     const keyList: (keyof T)[] = Object.keys(validationList) as (keyof T)[];
     keyList.forEach(key => {
       let flag = true;
@@ -107,10 +111,31 @@ export class Validation {
       flag = flag && param.length <= validator.maxLength;
     }
 
-    if (validator.validator !== undefined) {
+    if (validator.objectValidator !== undefined) {
       param.forEach(p => {
-        flag = flag && this.validation(p, validator.validator);
+        flag = flag && this.validation(p, validator.objectValidator);
       });
+    }
+
+    const primitive = validator.primitiveValidator;
+    if (primitive !== undefined) {
+      if (primitive.type === 'string') {
+        param.forEach(p => {
+          flag = flag && Validation.stringValidation(p, primitive);
+        });
+      }
+
+      if (primitive.type === 'boolean') {
+        param.forEach(p => {
+          flag = flag && Validation.booleanValidation(p);
+        });
+      }
+
+      if (primitive.type === 'number') {
+        param.forEach(p => {
+          flag = flag && Validation.numberValidation(p, primitive);
+        });
+      }
     }
 
     return flag;

@@ -32,7 +32,8 @@ export interface IArrayRequestValidator<T> {
   readonly required: boolean;
   readonly minLength?: number;
   readonly maxLength?: number;
-  readonly validator?: T;
+  readonly primitiveValidator?: IStringRequestValidator | INumberRequestValidator | IBooleanRequestValidator;
+  readonly objectValidator?: T;
 }
 
 export interface IEnumRequestValidator {
