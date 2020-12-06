@@ -9,12 +9,20 @@ export class TestIdController extends HttpMethodController<UserType> {
     this.setMethod('GET', {
       func: this.get,
       isAuthentication: true,
-      validation: {}
+      validation: {
+        paramValidator: {
+          id: {
+            type: 'string',
+            required: true,
+            regExp: /^[0-9a-zA-Z]{1,10}$/
+          }
+        }
+      }
     });
   }
 
   private async get(
-    event: CallFunctionEventParameter<UserType, never, never, never, any>
+    event: CallFunctionEventParameter<UserType, never, PathParameter, never, any>
   ): Promise<APIGatewayProxyResult> {
     return {
       body: JSON.stringify({ ...event.userInfo, ...{ uri: '/test/{id}' } }),
@@ -22,3 +30,7 @@ export class TestIdController extends HttpMethodController<UserType> {
     };
   }
 }
+
+type PathParameter = {
+  id: string;
+};
