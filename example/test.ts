@@ -1,8 +1,11 @@
 import { handler } from './handler';
 
 const event: any = {
-  resource: '/test',
-  httpMethod: 'GET'
+  resource: '/test/{id}',
+  httpMethod: 'GET',
+  pathParameters: {
+    id: 'aaa+'
+  }
 };
 
 handler(event)
