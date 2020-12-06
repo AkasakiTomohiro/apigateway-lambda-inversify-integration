@@ -250,8 +250,22 @@ export interface IValidation<T, U, K, P> {
  */
 export type AuthenticationFunction<E = any> = (event: APIGatewayProxyEvent) => Promise<AuthenticationFunctionResult<E>>;
 
+/**
+ * Return type of authentication function
+ */
 export type AuthenticationFunctionResult<E> = {
+  /**
+   * Authentication Success Response
+   */
   userInfo?: E;
+
+  /**
+   * Unauthorized Response
+   */
   error401: boolean;
+
+  /**
+   * Internal Server Error Response
+   */
   error500: boolean;
 };
