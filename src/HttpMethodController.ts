@@ -46,7 +46,42 @@ export abstract class HttpMethodController<E> {
   private conditions: Conditions<E> = {};
 
   /**
+   * Authentication
+   *
+   * @param  {APIGatewayProxyEvent} event Event data passed from the API Gateway
+   * @param  {Condition<E>} condition Defining a process for each HTTP method
+   * @returns Promise<AuthenticationFunctionResult<E>>
+   */
+  private static async auth<E>(
+    event: APIGatewayProxyEvent,
+    condition: Condition<E>
+  ): Promise<AuthenticationFunctionResult<E>> {
+    if (condition.isAuthentication) {
+      if (HttpMethodController.authenticationFunc === undefined) {
+        return {
+          error401: false,
+          error500: true
+        };
+      } else {
+        const result = await HttpMethodController.authenticationFunc(event).catch(() => {
+          return {
+            error401: true,
+            error500: false
+          };
+        });
+        return result;
+      }
+    } else {
+      return {
+        error401: false,
+        error500: false
+      };
+    }
+  }
+
+  /**
    * Execute a function corresponding to the Method.
+   * @param controller HttpMethodController
    * @param event Event data passed from the API Gateway
    * @returns Objects to be returned to APi Gateway
    *          Success Response
@@ -56,13 +91,16 @@ export abstract class HttpMethodController<E> {
    *          - Unauthorize
    *          - Internal Server Error
    */
-  public async handler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
-    const condition = this.conditions[event.httpMethod as HttpMethod];
+  private static async handler<E>(
+    controller: HttpMethodController<E>,
+    event: APIGatewayProxyEvent
+  ): Promise<APIGatewayProxyResult> {
+    const condition = controller.conditions[event.httpMethod as HttpMethod];
 
     if (condition === undefined) {
       return HttpMethodController.badRequestResponse;
     } else {
-      const authResult = await this.auth(event, condition);
+      const authResult = await HttpMethodController.auth<E>(event, condition);
       if (authResult.error401) {
         return HttpMethodController.unauthorizeErrorResponse;
       }
@@ -87,10 +125,25 @@ export abstract class HttpMethodController<E> {
           pathParameters: event.pathParameters,
           body: event.body,
           queryParameters: event.queryStringParameters,
-          userInfo: authResult.userInfo ?? ({} as E)
+          userInfo: authResult.userInfo as E
         })
         .catch(() => HttpMethodController.internalServerErrorResponse);
     }
+  }
+
+  /**
+   * Execute a function corresponding to the Method.
+   * @param event Event data passed from the API Gateway
+   * @returns Objects to be returned to APi Gateway
+   *          Success Response
+   *          - CallFunction success response
+   *          Error Response
+   *          - Bad Request
+   *          - Unauthorize
+   *          - Internal Server Error
+   */
+  public async handler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
+    return HttpMethodController.handler<E>(this, event);
   }
 
   /**
@@ -101,37 +154,6 @@ export abstract class HttpMethodController<E> {
    */
   protected setMethod<T, U, K, P>(method: HttpMethod, condition: Condition<E, T, U, K, P>): void {
     this.conditions[method] = condition;
-  }
-
-  /**
-   * Authentication
-   *
-   * @param  {APIGatewayProxyEvent} event Event data passed from the API Gateway
-   * @param  {Condition<E>} condition Defining a process for each HTTP method
-   * @returns Promise<AuthenticationFunctionResult<E>>
-   */
-  private async auth(event: APIGatewayProxyEvent, condition: Condition<E>): Promise<AuthenticationFunctionResult<E>> {
-    if (condition.isAuthentication) {
-      if (HttpMethodController.authenticationFunc === undefined) {
-        return {
-          error401: false,
-          error500: true
-        };
-      } else {
-        const result = await HttpMethodController.authenticationFunc(event).catch(() => {
-          return {
-            error401: false,
-            error500: true
-          };
-        });
-        return result;
-      }
-    } else {
-      return {
-        error401: false,
-        error500: false
-      };
-    }
   }
 }
 
