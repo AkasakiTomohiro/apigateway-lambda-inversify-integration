@@ -62,11 +62,11 @@ export abstract class HttpMethodController<E> {
     if (condition === undefined) {
       return HttpMethodController.badRequestResponse;
     } else {
-      const [authResult, err401, err500] = await this.auth(event, condition);
-      if (err401) {
+      const authResult = await this.auth(event, condition);
+      if (authResult.error401) {
         return HttpMethodController.unauthorizeErrorResponse;
       }
-      if (err500) {
+      if (authResult.error500) {
         return HttpMethodController.internalServerErrorResponse;
       }
 
@@ -82,7 +82,13 @@ export abstract class HttpMethodController<E> {
       }
 
       return condition
-        .func(event.headers, event.pathParameters, event.body, event.queryStringParameters, authResult ?? ({} as E))
+        .func(
+          event.headers,
+          event.pathParameters,
+          event.body,
+          event.queryStringParameters,
+          authResult.userInfo ?? ({} as E)
+        )
         .catch(() => HttpMethodController.internalServerErrorResponse);
     }
   }
@@ -102,23 +108,29 @@ export abstract class HttpMethodController<E> {
    *
    * @param  {APIGatewayProxyEvent} event Event data passed from the API Gateway
    * @param  {Condition<E>} condition Defining a process for each HTTP method
-   * @returns Promise<[E | undefined, boolean, boolean]>
-   * Tuple 1 {E | undefined} User Information
-   * Tuple 2 {boolean} 401 Unauthorize
-   * Tuple 3 {boolean} 500 Internal Server Error
+   * @returns Promise<AuthenticationFunctionResult<E>>
    */
-  private async auth(event: APIGatewayProxyEvent, condition: Condition<E>): Promise<[E | undefined, boolean, boolean]> {
+  private async auth(event: APIGatewayProxyEvent, condition: Condition<E>): Promise<AuthenticationFunctionResult<E>> {
     if (condition.isAuthentication) {
       if (HttpMethodController.authenticationFunc === undefined) {
-        return [undefined, false, true];
+        return {
+          error401: false,
+          error500: true
+        };
       } else {
-        const result = await HttpMethodController.authenticationFunc(event).catch(
-          () => [undefined, false, true] as [undefined, boolean, boolean]
-        );
+        const result = await HttpMethodController.authenticationFunc(event).catch(() => {
+          return {
+            error401: false,
+            error500: true
+          };
+        });
         return result;
       }
     } else {
-      return [undefined, false, false];
+      return {
+        error401: false,
+        error500: false
+      };
     }
   }
 }
@@ -221,6 +233,10 @@ export interface IValidation<T, U, K, P> {
  * @returns Parameters you wish to return in the authentication results
  * e.g. user ID
  */
-export type AuthenticationFunction<E = any> = (
-  event: APIGatewayProxyEvent
-) => Promise<[E | undefined, boolean, boolean]>;
+export type AuthenticationFunction<E = any> = (event: APIGatewayProxyEvent) => Promise<AuthenticationFunctionResult<E>>;
+
+export type AuthenticationFunctionResult<E> = {
+  userInfo?: E;
+  error401: boolean;
+  error500: boolean;
+};
