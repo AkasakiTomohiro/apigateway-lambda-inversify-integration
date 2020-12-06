@@ -1,5 +1,7 @@
 # Readme
 
+apigateway-lambda-inversify-integration
+
 ## Why I wanted to create this library
 
 When I combined the API Gateway and Lambda, I developed separate entry points for each URI and HTTP method.

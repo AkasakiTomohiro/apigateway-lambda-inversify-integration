@@ -1,8 +1,7 @@
 {
   "extends": "./tsconfig.build.json",
   "compilerOptions": {
-    "target": "es6",
-    "module": "es2015",
+    "module": "es6",
     "outDir": "./esm",
     "declaration": false,
     "declarationMap": false,
