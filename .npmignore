@@ -1,6 +1,5 @@
 src/
 .vscode/
-example/
 .lintstagedrc
 .huskyrc.json
 .prettierrc.js
