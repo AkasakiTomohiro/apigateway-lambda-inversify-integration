@@ -1,12 +1,12 @@
 {
-  "name": "lambda-inversify-integration",
+  "name": "apigateway-lambda-inversify-integration",
   "version": "1.0.0",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "files": [
     "lib"
   ],
-  "repository": "https://github.com/AkasakiTomohiro/lambda-inversify-integration.git",
+  "repository": "https://github.com/AkasakiTomohiro/apigateway-lambda-inversify-integration.git",
   "author": "t-akasaki <t.akasaki.csharp@gmail.com>",
   "license": "MIT",
   "scripts": {
