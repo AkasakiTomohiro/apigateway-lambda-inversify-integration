@@ -24,7 +24,7 @@ export async function handler(event: APIGatewayProxyEvent): Promise<any> {
    */
   const test = container.get<HttpMethodController<UserType>>(Symbol.for(event.resource));
 
-  return test.handler(event).catch(err => {
+  return test.handler(event).catch((err: any) => {
     return err;
   });
 }

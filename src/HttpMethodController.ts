@@ -82,13 +82,13 @@ export abstract class HttpMethodController<E> {
       }
 
       return condition
-        .func(
-          event.headers,
-          event.pathParameters,
-          event.body,
-          event.queryStringParameters,
-          authResult.userInfo ?? ({} as E)
-        )
+        .func({
+          headers: event.headers,
+          pathParameters: event.pathParameters,
+          body: event.body,
+          queryParameters: event.queryStringParameters,
+          userInfo: authResult.userInfo ?? ({} as E)
+        })
         .catch(() => HttpMethodController.internalServerErrorResponse);
     }
   }
@@ -169,6 +169,41 @@ export type Condition<E, T = any, U = any, K = any, P = any> = {
 };
 
 /**
+ * Function arguments to be performed in the API
+ * @typeParam E - User Information
+ * @typeParam T - HTTP Body
+ * @typeParam U - HTTP URL Path Parameter
+ * @typeParam K - HTTP URL Path Query Parameter
+ * @typeParam P - HTTP Header
+ */
+export type CallFunctionEventParameter<E, T, U, K, P> = {
+  /**
+   * Headers
+   */
+  headers: P;
+
+  /**
+   * Path parameter
+   */
+  pathParameters: U;
+
+  /**
+   * Body
+   */
+  body: T;
+
+  /**
+   * URL Query Parameters
+   */
+  queryParameters: K;
+
+  /**
+   * Authentication results, user information, etc.
+   */
+  userInfo: E;
+};
+
+/**
  * Functions to be executed by the API
  * @typeParam E - User Information
  * @typeParam T - HTTP Body
@@ -180,27 +215,7 @@ export type CallFunction<E, T, U, K, P> = (
   /**
    * Headers
    */
-  headers: P,
-
-  /**
-   * Path parameter
-   */
-  pathParameters: U,
-
-  /**
-   * Body
-   */
-  body: T,
-
-  /**
-   * URL Query Parameters
-   */
-  queryParameters: K,
-
-  /**
-   * Authentication results, user information, etc.
-   */
-  userInfo: E
+  event: CallFunctionEventParameter<E, T, U, K, P>
 ) => Promise<APIGatewayProxyResult>;
 
 /**

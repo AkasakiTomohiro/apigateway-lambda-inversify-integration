@@ -1,6 +1,6 @@
 import { APIGatewayProxyResult } from 'aws-lambda';
 
-import { HttpMethodController } from '../../src/HttpMethodController';
+import { CallFunctionEventParameter, HttpMethodController } from '../../src/HttpMethodController';
 import { UserType } from '../User';
 
 export class TestIdController extends HttpMethodController<UserType> {
@@ -14,14 +14,10 @@ export class TestIdController extends HttpMethodController<UserType> {
   }
 
   private async get(
-    headers: any,
-    pathParameters: never,
-    body: never,
-    queryParameters: never,
-    userInfo: UserType
+    event: CallFunctionEventParameter<UserType, never, never, never, any>
   ): Promise<APIGatewayProxyResult> {
     return {
-      body: JSON.stringify({ ...userInfo, ...{ uri: '/test/{id}' } }),
+      body: JSON.stringify({ ...event.userInfo, ...{ uri: '/test/{id}' } }),
       statusCode: 200
     };
   }
