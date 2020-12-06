@@ -1,11 +1,11 @@
 {
   "name": "apigateway-lambda-inversify-integration",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "module": "esm/index.js",
   "files": [
-    "lib"
+    "lib", "esm"
   ],
   "repository": "https://github.com/AkasakiTomohiro/apigateway-lambda-inversify-integration.git",
   "author": "t-akasaki <t.akasaki.csharp@gmail.com>",
