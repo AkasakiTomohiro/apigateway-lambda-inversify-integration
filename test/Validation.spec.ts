@@ -1,6 +1,6 @@
-import { HttpMethod, httpMethodList } from './HttpMethod';
-import { IValidation } from './HttpMethodController';
-import { Validation } from './Validation';
+import { HttpMethod, httpMethodList } from '../src/HttpMethod';
+import { IValidation } from '../src/HttpMethodController';
+import { Validation } from '../src/Validation';
 
 describe('ValidatorMiddleware', () => {
   beforeAll(() => {});
