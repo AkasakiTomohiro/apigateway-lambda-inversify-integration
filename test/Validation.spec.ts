@@ -1102,9 +1102,9 @@ describe('ValidatorMiddleware', () => {
             type: 'array',
             required: true,
             primitiveValidator: {
-              type: 'number',
+              type: 'custom',
               required: true,
-              integer: true
+              validationFunc: () => true
             },
             maxLength: 1
           }
@@ -1137,9 +1137,9 @@ describe('ValidatorMiddleware', () => {
             type: 'array',
             required: true,
             primitiveValidator: {
-              type: 'number',
+              type: 'custom',
               required: true,
-              integer: true
+              validationFunc: () => true
             },
             maxLength: 1
           }
@@ -1213,6 +1213,67 @@ describe('ValidatorMiddleware', () => {
       };
       const body: any = {
         a: 'c'
+      };
+      const params: any = {};
+      const query: any = {};
+      const headers: any = {};
+
+      /* ------------------------ テスト対象関数を実行 ------------------------ */
+      const result = await Validation.check(validation, headers, params, body, query);
+
+      /* ------------------------------ 評価項目 ------------------------------ */
+      expect(result).not.toBeTruthy();
+    });
+  });
+  describe('Custom Validator', () => {
+    it('Custom Func True', async () => {
+      type EnumType = {
+        a: HttpMethod;
+      };
+      const validation: IValidation<EnumType, any, any, any> = {
+        bodyValidator: {
+          a: {
+            type: 'custom',
+            required: true,
+            validationFunc: () => true
+          }
+        },
+        headerValidator: undefined,
+        paramValidator: undefined,
+        queryValidator: undefined
+      };
+      const body: EnumType = {
+        a: 'GET'
+      };
+      const params: any = {};
+      const query: any = {};
+      const headers: any = {};
+
+      /* ------------------------ テスト対象関数を実行 ------------------------ */
+      const result = await Validation.check(validation, headers, params, body, query);
+
+      /* ------------------------------ 評価項目 ------------------------------ */
+      expect(result).toBeTruthy();
+    });
+
+    it('Custom Func False', async () => {
+      type EnumType = {
+        a: HttpMethod;
+      };
+      const validation: IValidation<EnumType, any, any, any> = {
+        bodyValidator: {
+          a: {
+            type: 'custom',
+            required: true,
+            validationFunc: () => false
+          }
+        },
+        headerValidator: undefined,
+        paramValidator: undefined,
+        queryValidator: undefined
+      };
+      const body: EnumType = {
+        a: 'GET'
       };
       const params: any = {};
       const query: any = {};

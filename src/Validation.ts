@@ -1,6 +1,7 @@
 import { IValidation } from './HttpMethodController';
 import {
   IArrayRequestValidator,
+  ICustomValidator,
   IEnumRequestValidator,
   INumberRequestValidator,
   IObjectRequestValidator,
@@ -86,10 +87,18 @@ export class Validation {
         flag = flag && Validation.enumValidation(param[key], validator);
       }
 
+      if (validator.type === 'custom' && paramExists) {
+        flag = flag && Validation.customValidation(param[key], validator);
+      }
+
       result = result && flag;
     });
 
     return result;
+  }
+
+  private static customValidation(param: any, validator: ICustomValidator<any>): boolean {
+    return validator.validationFunc(param);
   }
 
   private static enumValidation(param: any, validator: IEnumRequestValidator): boolean {
@@ -134,6 +143,12 @@ export class Validation {
       if (primitive.type === 'number') {
         param.forEach(p => {
           flag = flag && Validation.numberValidation(p, primitive);
+        });
+      }
+
+      if (primitive.type === 'custom') {
+        param.forEach(p => {
+          flag = flag && Validation.customValidation(p, primitive);
         });
       }
     }
