@@ -10,7 +10,7 @@ import { Validator } from './Validator';
  * @typeParam E - Authentication results, user information, etc.
  */
 @injectable()
-export abstract class HttpMethodController<E> {
+export abstract class HttpMethodController<E = never> {
   /**
    * Objects returned in case of a validation error
    */
