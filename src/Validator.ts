@@ -32,7 +32,7 @@ export interface IArrayRequestValidator<T> {
   readonly required: boolean;
   readonly minLength?: number;
   readonly maxLength?: number;
-  readonly primitiveValidator?: IStringRequestValidator | INumberRequestValidator | IBooleanRequestValidator;
+  readonly primitiveValidator?: PrimitiveValidators<T>;
   readonly objectValidator?: T;
 }
 
@@ -42,13 +42,26 @@ export interface IEnumRequestValidator {
   readonly list: readonly (string | number)[];
 }
 
+export interface ICustomValidator<T> {
+  readonly type: 'custom';
+  readonly required: boolean;
+  readonly validationFunc: (param: T) => boolean;
+}
+
+export type PrimitiveValidators<T> =
+  | IStringRequestValidator
+  | INumberRequestValidator
+  | IBooleanRequestValidator
+  | ICustomValidator<T>;
+
 export type Validators<T = any> =
   | IStringRequestValidator
   | INumberRequestValidator
   | IBooleanRequestValidator
   | IEnumRequestValidator
   | IObjectRequestValidator<T>
-  | IArrayRequestValidator<T>;
+  | IArrayRequestValidator<T>
+  | ICustomValidator<T>;
 
 export type Validator<T> = {
   readonly [U in keyof T]-?: T[U] extends (infer R)[]

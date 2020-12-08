@@ -154,7 +154,7 @@ describe('HttpMethodController', () => {
       const result = await test.handler(event);
 
       /* ------------------------------ 評価項目 ------------------------------ */
-      expect(result).toEqual(HttpMethodController.unauthorizeErrorResponse);
+      expect(result).toEqual(HttpMethodController.internalServerErrorResponse);
       expect(HttpMethodController.authenticationFunc).toBeCalled();
       expect(spy).not.toBeCalled();
     });

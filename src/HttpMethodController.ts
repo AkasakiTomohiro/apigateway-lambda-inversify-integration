@@ -10,7 +10,7 @@ import { Validator } from './Validator';
  * @typeParam E - Authentication results, user information, etc.
  */
 @injectable()
-export abstract class HttpMethodController<E> {
+export abstract class HttpMethodController<E = never> {
   /**
    * Objects returned in case of a validation error
    */
@@ -65,8 +65,8 @@ export abstract class HttpMethodController<E> {
       } else {
         const result = await HttpMethodController.authenticationFunc(event).catch(() => {
           return {
-            error401: true,
-            error500: false
+            error401: false,
+            error500: true
           };
         });
         return result;

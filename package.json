@@ -1,17 +1,20 @@
 {
   "name": "apigateway-lambda-inversify-integration",
-  "version": "1.0.1",
+  "version": "1.4.0",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
+  "module": "esm/index.js",
   "files": [
-    "lib"
+    "lib", "esm"
   ],
   "repository": "https://github.com/AkasakiTomohiro/apigateway-lambda-inversify-integration.git",
   "author": "t-akasaki <t.akasaki.csharp@gmail.com>",
   "license": "MIT",
   "scripts": {
     "prepublishOnly": "npm run build",
-    "build": "tsc --build tsconfig.build.json",
+    "build": "yarn build:CommonJS && yarn build:esm",
+    "build:CommonJS": "tsc --build tsconfig.build.json",
+    "build:esm": "tsc --build tsconfig.esm.json",
     "lint:fix": "eslint --fix",
     "lint-staged": "lint-staged",
     "example": "yarn ts-node ./example/test.ts",
