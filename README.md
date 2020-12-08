@@ -177,7 +177,7 @@ The return value of `authentication` should be returned by specifying one of the
 - Successful authentication
 ```
 {
-  userInfo: 認証後に利用したいユーザー情報,
+  userInfo: User information you want to use after authentication,
   error401: false,
   error500: false
 }
@@ -259,7 +259,7 @@ export class TestController extends HttpMethodController {
 
 #### Assumptions
 
-次のURIを提供するAPIがあるとして使用方法について説明します。
+The following describes how to use it as there is an API to provide the URIs
 
 ``` .
 GET /test
