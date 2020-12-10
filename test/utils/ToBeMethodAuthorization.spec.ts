@@ -3,7 +3,7 @@ import { APIGatewayProxyResult } from 'aws-lambda';
 import { CallFunctionEventParameter, HttpMethodController } from '../../src/HttpMethodController';
 import toBeMethodAuthentication from '../../src/utils/ToBeMethodAuthentication';
 
-describe('ToMethodDefied', () => {
+describe('ToBeMethodAuthorization', () => {
   beforeEach(() => {
     expect.extend(toBeMethodAuthentication);
   });

@@ -3,7 +3,7 @@ import { APIGatewayProxyResult } from 'aws-lambda';
 import { CallFunctionEventParameter, HttpMethodController } from '../../src/HttpMethodController';
 import toBeMethodFunction from '../../src/utils/ToBeMethodFunction';
 
-describe('ToMethodDefied', () => {
+describe('ToBeMethodFunction', () => {
   beforeEach(() => {
     expect.extend(toBeMethodFunction);
   });
