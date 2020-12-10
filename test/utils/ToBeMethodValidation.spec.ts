@@ -17,7 +17,7 @@ describe('ToBeMethodValidation', () => {
 
     /* ------------------------ テスト対象関数を実行 ------------------------ */
     /* ------------------------------ 評価項目 ------------------------------ */
-    expect(controller).toBeMethodValidation<ITest>('GET', 'bodyValidator', 'key', validation);
+    expect(controller).toBeMethodValidation<ITest>('POST', 'bodyValidator', 'key', validation);
   });
 
   it('Validation 2', async () => {
@@ -33,14 +33,14 @@ describe('ToBeMethodValidation', () => {
 
     /* ------------------------ テスト対象関数を実行 ------------------------ */
     /* ------------------------------ 評価項目 ------------------------------ */
-    expect(controller).toBeMethodValidation<ITest>('GET', 'bodyValidator', 'num', validation);
+    expect(controller).toBeMethodValidation<ITest>('POST', 'bodyValidator', 'num', validation);
   });
 });
 
 class Test1Controller extends HttpMethodController<any> {
   public constructor() {
     super();
-    this.setMethod('GET', {
+    this.setMethod('POST', {
       func: this.test,
       isAuthentication: false,
       validation: {
