@@ -3,6 +3,7 @@ export * from './HttpMethodController';
 export * from './utils/ToBeMethodAuthentication';
 export * from './utils/ToBeMethodDefied';
 export * from './utils/ToBeMethodFunction';
+export * from './utils/ToBeMethodValidation';
 export * from './Validation';
 export * from './Validator';
 
