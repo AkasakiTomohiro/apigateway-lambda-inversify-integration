@@ -392,13 +392,23 @@ Change this value if you want to change the body data at the time of server erro
 
 ### 6. unit test
 
-HttpMethodControllerの単体テスト用にいくつかのMatcherを実装してあります。
+In order for Jest to recognize it, you need to configure the following settings in Jest.
+
+``` jest.config.js
+setupFilesAfterEnv: ['<rootDir>/node_modules/apigateway-lambda-inversify-integration/jest.d.ts']
+```
+
+※If anyone knows how to import just by specifying 'apigateway-lambda-inversify-integration', it would be appreciated if you could let us know in an issue.
+
+#### Usage
+
+Several Matchers have been implemented for unit testing of HttpMethodController.
 
 ・ matcher that evaluates whether the specified HTTP Method is implemented.
 
 For example, if you have a class called Test1Controller that extends HttpMethodController, and you want to evaluate whether a GET method has been defined, you can evaluate it as follows
 
-``` test..ts
+``` test.ts
   it('Test', async () => {
     const controller = new Test1Controller();
     expect(controller).toBeMethodDefied('GET');
