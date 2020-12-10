@@ -41,6 +41,11 @@ export abstract class HttpMethodController<E = never> {
   public static authenticationFunc?: AuthenticationFunction = undefined;
 
   /**
+   * Validation function
+   */
+  public static validationFunc: ValidationFunction = Validation.check;
+
+  /**
    * pre-processing definition for HttpMethod
    */
   private conditions: Conditions<E> = {};
@@ -108,7 +113,7 @@ export abstract class HttpMethodController<E = never> {
         return HttpMethodController.internalServerErrorResponse;
       }
 
-      const validationResult = await Validation.check(
+      const validationResult = await HttpMethodController.validationFunc(
         condition.validation,
         event.headers,
         event.pathParameters,
@@ -291,3 +296,15 @@ export type AuthenticationFunctionResult<E> = {
    */
   error500: boolean;
 };
+
+/**
+ * Validation Check Function
+ * @returns 引数のバリデーションチェックの結果
+ */
+export type ValidationFunction<T = any, U = any, K = any, P = any> = (
+  validation: IValidation<T, U, K, P>,
+  headers: P,
+  pathParameters?: U,
+  body?: T,
+  queryParameters?: K
+) => Promise<boolean>;
