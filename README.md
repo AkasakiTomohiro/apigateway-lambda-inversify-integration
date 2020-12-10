@@ -21,6 +21,7 @@ See also the source of the example folder.
 3. certification
 4. validation
 5. changing the error response definition
+6. unit test
 
 ### 1. how to register the API
 
@@ -366,6 +367,11 @@ The value of each Validation is expressed as a logical product. 1.
    ・Required parameters or
    ・Any validation function can be specified
 
+
+#### custom validation
+
+If you want to customize the validation function, change `HttpMethodController.validationFunc`.
+
 ### 5. changing the error response definition
 
 ・Validation errors
@@ -382,6 +388,101 @@ If you want to change the body data at the time of authentication error, change 
 
 In case of this error, `HttpMethodController.internalServerErrorResponse` is returned.
 Change this value if you want to change the body data at the time of server error.
+
+
+### 6. unit test
+
+HttpMethodControllerの単体テスト用にいくつかのMatcherを実装してあります。
+
+・ matcher that evaluates whether the specified HTTP Method is implemented.
+
+For example, if you have a class called Test1Controller that extends HttpMethodController, and you want to evaluate whether a GET method has been defined, you can evaluate it as follows
+
+``` test..ts
+  it('Test', async () => {
+    const controller = new Test1Controller();
+    expect(controller).toBeMethodDefied('GET');
+  });
+```
+
+・ Matcher that evaluates whether or not the authentication is correctly set for the specified HTTP Method.
+
+For methods that require authentication
+
+``` test.ts
+  it('Test', async () => {
+    const controller = new Test1Controller();
+    expect(controller).toBeMethodAuthentication('GET');
+  });
+```
+
+For methods that do not require authentication
+
+``` test.ts
+  it('Test', async () => {
+    const controller = new Test1Controller();
+    expect(controller).not.toBeMethodAuthentication('GET');
+  });
+```
+
+・ Matcher that evaluates whether or not the specified function is defined in the specified HTTP method.
+
+``` test.ts
+  it('Test', async () => {
+    const controller = new Test1Controller();
+    expect(controller).toBeMethodFunction('GET', 'get');
+  });
+```
+
+・ matcher that evaluates if the validation is set correctly for the specified HTTP Method.
+
+When the ITest type is defined in the Body parameter of the POST method in Test1Controller, validation can be evaluated for each key of the ITest type.
+
+``` test.ts
+ it('Test', async () => {
+    const controller = new Test1Controller();
+    const validation: Validators = { type: 'string', required: true };
+    expect(controller).toBeMethodValidation<ITest>('POST', 'bodyValidator', 'key', validation);
+  });
+```
+
+``` Defined.ts
+class Test1Controller extends HttpMethodController<any> {
+  public constructor() {
+    super();
+    this.setMethod('POST', {
+      func: this.test,
+      isAuthentication: false,
+      validation: {
+        bodyValidator: {
+          key: {
+            type: 'string',
+            required: true
+          },
+          num: {
+            type: 'number',
+            required: true,
+            integer: true,
+            lessThan: 1
+          }
+        }
+      }
+    });
+  }
+
+  private async test(event: CallFunctionEventParameter<any, ITest, never, never, any>): Promise<APIGatewayProxyResult> {
+    return {
+      body: JSON.stringify({ ...event.userInfo, ...{ uri: '/test' } }),
+      statusCode: 200
+    };
+  }
+}
+
+interface ITest {
+  key: string;
+  num: number;
+}
+```
 
 ## Acknowledgements
 
