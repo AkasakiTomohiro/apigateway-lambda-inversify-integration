@@ -24,6 +24,7 @@
     "test:coverage": "jest --coverage --config jest.config.js"
   },
   "dependencies": {
+    "deep-equal": "^2.0.5",
     "inversify": "^5.0.1",
     "reflect-metadata": "^0.1.13"
   },
