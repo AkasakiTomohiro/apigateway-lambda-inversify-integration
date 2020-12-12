@@ -1,13 +1,12 @@
 {
   "name": "apigateway-lambda-inversify-integration",
-  "version": "1.5.1",
+  "version": "1.6.0",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "module": "esm/index.js",
   "files": [
     "lib",
-    "esm",
-    "jest.d.ts"
+    "esm"
   ],
   "repository": "https://github.com/AkasakiTomohiro/apigateway-lambda-inversify-integration.git",
   "author": "t-akasaki <t.akasaki.csharp@gmail.com>",
@@ -35,6 +34,7 @@
     "@types/node": "^14.14.7",
     "@typescript-eslint/eslint-plugin": "^4.7.0",
     "@typescript-eslint/parser": "^4.7.0",
+    "apigateway-lambda-inversify-integration-jest": "^1.0.2",
     "commitlint": "^11.0.0",
     "conventional-changelog-conventionalcommits": "^4.5.0",
     "eslint": "^7.13.0",
@@ -48,5 +48,11 @@
     "ts-jest": "^26.4.4",
     "ts-node": "^9.0.0",
     "typescript": "3.7.5"
-  }
+  },
+  "keywords": [
+    "apigateway",
+    "lambda",
+    "inversify",
+    "dispatcher"
+  ]
 }

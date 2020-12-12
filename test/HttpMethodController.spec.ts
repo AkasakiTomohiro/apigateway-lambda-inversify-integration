@@ -56,6 +56,7 @@ describe('HttpMethodController', () => {
 
       /* ------------------------------ 評価項目 ------------------------------ */
       expect(result).toEqual(HttpMethodController.badRequestResponse);
+      expect(test).not.toBeMethodDefied('POST');
     });
 
     it('バリデーションに成功した場合', async () => {
@@ -74,6 +75,7 @@ describe('HttpMethodController', () => {
         statusCode: 200
       });
       expect(spy).toBeCalled();
+      expect(test).toBeMethodDefied('GET').toBeMethodFunction('GET', 'get').not.toBeMethodAuthentication('GET');
     });
 
     it('バリデーションエラーの場合', async () => {
@@ -89,6 +91,7 @@ describe('HttpMethodController', () => {
       /* ------------------------------ 評価項目 ------------------------------ */
       expect(result).toEqual(HttpMethodController.badRequestResponse);
       expect(spy).toBeCalled();
+      expect(test).toBeMethodDefied('GET').toBeMethodFunction('GET', 'get').not.toBeMethodAuthentication('GET');
     });
 
     it('Conditionの指定された関数でエラーが発生した場合', async () => {
@@ -104,6 +107,7 @@ describe('HttpMethodController', () => {
       /* ------------------------------ 評価項目 ------------------------------ */
       expect(result).toEqual(HttpMethodController.internalServerErrorResponse);
       expect(spy).toBeCalled();
+      expect(test).toBeMethodDefied('GET').toBeMethodFunction('GET', 'get').not.toBeMethodAuthentication('GET');
     });
 
     it('認証関数が未定義の場合', async () => {
@@ -119,6 +123,7 @@ describe('HttpMethodController', () => {
       /* ------------------------------ 評価項目 ------------------------------ */
       expect(result).toEqual(HttpMethodController.internalServerErrorResponse);
       expect(spy).not.toBeCalled();
+      expect(test).toBeMethodDefied('GET').toBeMethodFunction('GET', 'get').not.toBeMethodAuthentication('GET');
     });
 
     it('認証に成功した場合', async () => {
@@ -139,6 +144,7 @@ describe('HttpMethodController', () => {
       });
       expect(HttpMethodController.authenticationFunc).toBeCalled();
       expect(spy).toBeCalled();
+      expect(test).toBeMethodDefied('GET').toBeMethodFunction('GET', 'get').not.toBeMethodAuthentication('GET');
     });
 
     it('認証に失敗した場合', async () => {
@@ -156,6 +162,7 @@ describe('HttpMethodController', () => {
       expect(result).toEqual(HttpMethodController.internalServerErrorResponse);
       expect(HttpMethodController.authenticationFunc).toBeCalled();
       expect(spy).not.toBeCalled();
+      expect(test).toBeMethodDefied('GET').toBeMethodFunction('GET', 'get').not.toBeMethodAuthentication('GET');
     });
   });
 });
