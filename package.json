@@ -1,11 +1,13 @@
 {
   "name": "apigateway-lambda-inversify-integration",
-  "version": "1.4.1",
+  "version": "1.5.1",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "module": "esm/index.js",
   "files": [
-    "lib", "esm"
+    "lib",
+    "esm",
+    "jest.d.ts"
   ],
   "repository": "https://github.com/AkasakiTomohiro/apigateway-lambda-inversify-integration.git",
   "author": "t-akasaki <t.akasaki.csharp@gmail.com>",
@@ -22,6 +24,7 @@
     "test:coverage": "jest --coverage --config jest.config.js"
   },
   "dependencies": {
+    "deep-equal": "^2.0.5",
     "inversify": "^5.0.1",
     "reflect-metadata": "^0.1.13"
   },
@@ -39,6 +42,7 @@
     "gts": "^3.0.2",
     "husky": "^4.3.0",
     "jest": "26.4.2",
+    "jest-chain": "^1.1.5",
     "lint-staged": "^10.5.1",
     "prettier": "^2.1.2",
     "ts-jest": "^26.4.4",

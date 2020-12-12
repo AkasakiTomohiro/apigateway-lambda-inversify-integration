@@ -15,5 +15,5 @@
     "skipLibCheck": true
   },
   "exclude": ["node_modules","jest.setup.ts", "lib/*", "lib/**/*" ],
-  "include": ["src/*.ts"]
+  "include": ["src/*.ts", "src/**/*.ts"]
 }

@@ -1,7 +1,6 @@
 import { APIGatewayProxyResult } from 'aws-lambda';
 
 import { CallFunctionEventParameter, HttpMethodController } from '../src/HttpMethodController';
-import { Validation } from '../src/Validation';
 
 describe('HttpMethodController', () => {
   beforeAll(() => {
@@ -64,7 +63,7 @@ describe('HttpMethodController', () => {
       const test = new Test1Controller();
       const event: any = { httpMethod: 'GET' };
 
-      const spy = jest.spyOn(Validation, 'check').mockResolvedValue(true);
+      const spy = jest.spyOn(HttpMethodController, 'validationFunc').mockResolvedValue(true);
 
       /* ------------------------ テスト対象関数を実行 ------------------------ */
       const result = await test.handler(event);
@@ -82,7 +81,7 @@ describe('HttpMethodController', () => {
       const test = new Test1Controller();
       const event: any = { httpMethod: 'GET' };
 
-      const spy = jest.spyOn(Validation, 'check').mockResolvedValue(false);
+      const spy = jest.spyOn(HttpMethodController, 'validationFunc').mockResolvedValue(false);
 
       /* ------------------------ テスト対象関数を実行 ------------------------ */
       const result = await test.handler(event);
@@ -97,7 +96,7 @@ describe('HttpMethodController', () => {
       const test = new Test2Controller();
       const event: any = { httpMethod: 'GET' };
 
-      const spy = jest.spyOn(Validation, 'check').mockResolvedValue(true);
+      const spy = jest.spyOn(HttpMethodController, 'validationFunc').mockResolvedValue(true);
 
       /* ------------------------ テスト対象関数を実行 ------------------------ */
       const result = await test.handler(event);
@@ -112,7 +111,7 @@ describe('HttpMethodController', () => {
       const test = new Test3Controller();
       const event: any = { httpMethod: 'GET' };
 
-      const spy = jest.spyOn(Validation, 'check').mockResolvedValue(true);
+      const spy = jest.spyOn(HttpMethodController, 'validationFunc').mockResolvedValue(true);
 
       /* ------------------------ テスト対象関数を実行 ------------------------ */
       const result = await test.handler(event);
@@ -128,7 +127,7 @@ describe('HttpMethodController', () => {
       const event: any = { httpMethod: 'GET' };
       HttpMethodController.authenticationFunc = jest.fn().mockResolvedValue({ userId: 'a' });
 
-      const spy = jest.spyOn(Validation, 'check').mockResolvedValue(true);
+      const spy = jest.spyOn(HttpMethodController, 'validationFunc').mockResolvedValue(true);
 
       /* ------------------------ テスト対象関数を実行 ------------------------ */
       const result = await test.handler(event);
@@ -148,7 +147,7 @@ describe('HttpMethodController', () => {
       const event: any = { httpMethod: 'GET' };
       HttpMethodController.authenticationFunc = jest.fn().mockRejectedValue({ userId: 'a' });
 
-      const spy = jest.spyOn(Validation, 'check').mockResolvedValue(true);
+      const spy = jest.spyOn(HttpMethodController, 'validationFunc').mockResolvedValue(true);
 
       /* ------------------------ テスト対象関数を実行 ------------------------ */
       const result = await test.handler(event);
