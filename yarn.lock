@@ -1005,6 +1005,25 @@ anymatch@^3.0.3:
     normalize-path "^3.0.0"
     picomatch "^2.0.4"
 
+apigateway-lambda-inversify-integration-jest@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/apigateway-lambda-inversify-integration-jest/-/apigateway-lambda-inversify-integration-jest-1.0.2.tgz#b9ca60b13df7a9cbd2ddc568e0603bd115f901cf"
+  integrity sha512-CxBX6rY9cQx8RbEHKO49wa/N+RTg+NrqzrcL+uifs9j7vSvU7z/qRwUyjHdSr4GSbRhCE6KpTeDyiqc+VkZ+XA==
+  dependencies:
+    apigateway-lambda-inversify-integration "^1.4.1"
+    deep-equal "^2.0.5"
+    inversify "^5.0.1"
+    reflect-metadata "^0.1.13"
+
+apigateway-lambda-inversify-integration@^1.4.1:
+  version "1.5.1"
+  resolved "https://registry.yarnpkg.com/apigateway-lambda-inversify-integration/-/apigateway-lambda-inversify-integration-1.5.1.tgz#c16c4b1fa42abf13ea752c780330cc3c80f18eaf"
+  integrity sha512-QcGkGq10rjd3ZAw6muWJENs5vsPxITJZrfw5iA7OloVyH04Jb0pOZRpyN+In2dfF46YTiG/HtcgaY/PUTpSyYA==
+  dependencies:
+    deep-equal "^2.0.5"
+    inversify "^5.0.1"
+    reflect-metadata "^0.1.13"
+
 arg@^4.1.0:
   version "4.1.3"
   resolved "https://registry.yarnpkg.com/arg/-/arg-4.1.3.tgz#269fc7ad5b8e42cb63c896d5666017261c144089"

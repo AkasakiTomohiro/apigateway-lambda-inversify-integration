@@ -392,13 +392,7 @@ Change this value if you want to change the body data at the time of server erro
 
 ### 6. unit test
 
-In order for Jest to recognize it, you need to configure the following settings in Jest.
-
-``` jest.config.js
-setupFilesAfterEnv: ['<rootDir>/node_modules/apigateway-lambda-inversify-integration/jest.d.ts']
-```
-
-※If anyone knows how to import just by specifying 'apigateway-lambda-inversify-integration', it would be appreciated if you could let us know in an issue.
+Install `apigateway-lambda-inversify-integration-jest` and run the unit test.
 
 #### Usage
 
