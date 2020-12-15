@@ -123,7 +123,7 @@ describe('HttpMethodController', () => {
       /* ------------------------------ 評価項目 ------------------------------ */
       expect(result).toEqual(HttpMethodController.internalServerErrorResponse);
       expect(spy).not.toBeCalled();
-      expect(test).toBeMethodDefied('GET').toBeMethodFunction('GET', 'get').not.toBeMethodAuthentication('GET');
+      expect(test).toBeMethodDefied('GET').toBeMethodFunction('GET', 'get').toBeMethodAuthentication('GET');
     });
 
     it('認証に成功した場合', async () => {
@@ -144,10 +144,10 @@ describe('HttpMethodController', () => {
       });
       expect(HttpMethodController.authenticationFunc).toBeCalled();
       expect(spy).toBeCalled();
-      expect(test).toBeMethodDefied('GET').toBeMethodFunction('GET', 'get').not.toBeMethodAuthentication('GET');
+      expect(test).toBeMethodDefied('GET').toBeMethodFunction('GET', 'get').toBeMethodAuthentication('GET');
     });
 
-    it('認証に失敗した場合', async () => {
+    it('認証に失敗した場合:500', async () => {
       /* --------------------------- テストの前処理 --------------------------- */
       const test = new Test3Controller();
       const event: any = { httpMethod: 'GET' };
@@ -162,7 +162,25 @@ describe('HttpMethodController', () => {
       expect(result).toEqual(HttpMethodController.internalServerErrorResponse);
       expect(HttpMethodController.authenticationFunc).toBeCalled();
       expect(spy).not.toBeCalled();
-      expect(test).toBeMethodDefied('GET').toBeMethodFunction('GET', 'get').not.toBeMethodAuthentication('GET');
+      expect(test).toBeMethodDefied('GET').toBeMethodFunction('GET', 'get').toBeMethodAuthentication('GET');
+    });
+
+    it('認証に失敗した場合:401', async () => {
+      /* --------------------------- テストの前処理 --------------------------- */
+      const test = new Test3Controller();
+      const event: any = { httpMethod: 'GET' };
+      HttpMethodController.authenticationFunc = jest.fn().mockResolvedValue({ error401: true, error500: false });
+
+      const spy = jest.spyOn(HttpMethodController, 'validationFunc').mockResolvedValue(true);
+
+      /* ------------------------ テスト対象関数を実行 ------------------------ */
+      const result = await test.handler(event);
+
+      /* ------------------------------ 評価項目 ------------------------------ */
+      expect(result).toEqual(HttpMethodController.unauthorizeErrorResponse);
+      expect(HttpMethodController.authenticationFunc).toBeCalled();
+      expect(spy).not.toBeCalled();
+      expect(test).toBeMethodDefied('GET').toBeMethodFunction('GET', 'get').toBeMethodAuthentication('GET');
     });
   });
 });

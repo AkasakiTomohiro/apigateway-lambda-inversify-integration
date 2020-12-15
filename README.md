@@ -1,6 +1,12 @@
 # Readme
 apigateway-lambda-inversify-integration
 
+![build](https://github.com/AkasakiTomohiro/apigateway-lambda-inversify-integration/workflows/build/badge.svg)
+[![codecov](https://codecov.io/gh/AkasakiTomohiro/apigateway-lambda-inversify-integration/branch/master/graph/badge.svg?token=L5NJZDE2GC)](https://codecov.io/gh/AkasakiTomohiro/apigateway-lambda-inversify-integration)
+[![downloads](https://img.shields.io/npm/dm/apigateway-lambda-inversify-integration.svg?style=flat-square)](http://npm-stat.com/charts.html?package=apigateway-lambda-inversify-integration&from=2017-09-14)
+[![MIT License](https://img.shields.io/npm/l/apigateway-lambda-inversify-integration.svg?style=flat-square)](https://github.com/AkasakiTomohiro/apigateway-lambda-inversify-integration/blob/master/LICENSE)
+[![Examples](https://img.shields.io/badge/%F0%9F%92%A1-examples-ff615b.svg?style=flat-square)](https://github.com/AkasakiTomohiro/apigateway-lambda-inversify-integration/tree/master/example)
+
 ## Why I wanted to create this library
 
 When I combined the API Gateway and Lambda, I developed separate entry points for each URI and HTTP method.
