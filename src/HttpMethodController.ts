@@ -41,11 +41,6 @@ export abstract class HttpMethodController<E = never> {
   public static authenticationFunc?: AuthenticationFunction = undefined;
 
   /**
-   * Validation function
-   */
-  public static validationFunc: ValidationFunction = Validation.check;
-
-  /**
    * pre-processing definition for HttpMethod
    */
   private conditions: Conditions<E> = {};
@@ -113,7 +108,7 @@ export abstract class HttpMethodController<E = never> {
         return HttpMethodController.internalServerErrorResponse;
       }
 
-      const validationResult = await HttpMethodController.validationFunc(
+      const validationResult = await Validation.check(
         condition.validation,
         event.headers,
         event.pathParameters,
@@ -122,6 +117,21 @@ export abstract class HttpMethodController<E = never> {
       );
       if (!validationResult) {
         return HttpMethodController.badRequestResponse;
+      }
+
+      if (condition.customValidationFunc !== undefined) {
+        const customValidationResult = await condition.customValidationFunc({
+          body: event.body,
+          headers: event.headers,
+          pathParameters: event.pathParameters,
+          queryParameters: event.queryStringParameters
+        });
+        if (customValidationResult.errorResponse !== undefined) {
+          return customValidationResult.errorResponse;
+        }
+        if (!customValidationResult.validationResult) {
+          return HttpMethodController.badRequestResponse;
+        }
       }
 
       return condition
@@ -193,6 +203,11 @@ export type Condition<E, T = any, U = any, K = any, P = any> = {
    * Functions to be executed by the API
    */
   func: CallFunction<E, T, U, K, P>;
+
+  /**
+   * Custom validation of HTTP Body, Path Parameter, Path Query Parameter, and Header
+   */
+  customValidationFunc?: CustomValidationFunction<T, U, K, P>;
 };
 
 /**
@@ -240,10 +255,68 @@ export type CallFunctionEventParameter<E, T, U, K, P> = {
  */
 export type CallFunction<E, T, U, K, P> = (
   /**
-   * Headers
+   * Function arguments to be performed in the API
    */
   event: CallFunctionEventParameter<E, T, U, K, P>
 ) => Promise<APIGatewayProxyResult>;
+
+/**
+ * Custom validation of HTTP Body, Path Parameter, Path Query Parameter, and Header
+ * @typeParam T - HTTP Body
+ * @typeParam U - HTTP URL Path Parameter
+ * @typeParam K - HTTP URL Path Query Parameter
+ * @typeParam P - HTTP Header
+ */
+export type CustomValidationFunctionEventParameter<T, U, K, P> = {
+  /**
+   * Headers
+   */
+  headers: P;
+
+  /**
+   * Path parameter
+   */
+  pathParameters: U;
+
+  /**
+   * Body
+   */
+  body: T;
+
+  /**
+   * URL Query Parameters
+   */
+  queryParameters: K;
+};
+
+/**
+ *
+ * @typeParam T - HTTP Body
+ * @typeParam U - HTTP URL Path Parameter
+ * @typeParam K - HTTP URL Path Query Parameter
+ * @typeParam P - HTTP Header
+ */
+export type CustomValidationFunction<T, U, K, P> = (
+  /**
+   * HTTP Body, Path Parameter, Path Query Parameter, and Header
+   */
+  event: CustomValidationFunctionEventParameter<T, U, K, P>
+) => Promise<CustomValidationFunctionResult>;
+
+/**
+ * Return type of custom validation function
+ */
+export type CustomValidationFunctionResult = {
+  /**
+   * Authentication Success Response
+   */
+  validationResult: boolean;
+
+  /**
+   * Internal Server Error Response
+   */
+  errorResponse?: APIGatewayProxyResult;
+};
 
 /**
  * Validation list

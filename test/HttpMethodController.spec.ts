@@ -1,6 +1,12 @@
 import { APIGatewayProxyResult } from 'aws-lambda';
 
-import { CallFunctionEventParameter, HttpMethodController } from '../src/HttpMethodController';
+import {
+  CallFunctionEventParameter,
+  CustomValidationFunctionEventParameter,
+  CustomValidationFunctionResult,
+  HttpMethodController
+} from '../src/HttpMethodController';
+import { Validation } from '../src/Validation';
 
 describe('HttpMethodController', () => {
   beforeAll(() => {
@@ -64,7 +70,7 @@ describe('HttpMethodController', () => {
       const test = new Test1Controller();
       const event: any = { httpMethod: 'GET' };
 
-      const spy = jest.spyOn(HttpMethodController, 'validationFunc').mockResolvedValue(true);
+      const spy = jest.spyOn(Validation, 'check').mockResolvedValue(true);
 
       /* ------------------------ テスト対象関数を実行 ------------------------ */
       const result = await test.handler(event);
@@ -83,7 +89,7 @@ describe('HttpMethodController', () => {
       const test = new Test1Controller();
       const event: any = { httpMethod: 'GET' };
 
-      const spy = jest.spyOn(HttpMethodController, 'validationFunc').mockResolvedValue(false);
+      const spy = jest.spyOn(Validation, 'check').mockResolvedValue(false);
 
       /* ------------------------ テスト対象関数を実行 ------------------------ */
       const result = await test.handler(event);
@@ -99,7 +105,7 @@ describe('HttpMethodController', () => {
       const test = new Test2Controller();
       const event: any = { httpMethod: 'GET' };
 
-      const spy = jest.spyOn(HttpMethodController, 'validationFunc').mockResolvedValue(true);
+      const spy = jest.spyOn(Validation, 'check').mockResolvedValue(true);
 
       /* ------------------------ テスト対象関数を実行 ------------------------ */
       const result = await test.handler(event);
@@ -115,7 +121,7 @@ describe('HttpMethodController', () => {
       const test = new Test3Controller();
       const event: any = { httpMethod: 'GET' };
 
-      const spy = jest.spyOn(HttpMethodController, 'validationFunc').mockResolvedValue(true);
+      const spy = jest.spyOn(Validation, 'check').mockResolvedValue(true);
 
       /* ------------------------ テスト対象関数を実行 ------------------------ */
       const result = await test.handler(event);
@@ -132,7 +138,7 @@ describe('HttpMethodController', () => {
       const event: any = { httpMethod: 'GET' };
       HttpMethodController.authenticationFunc = jest.fn().mockResolvedValue({ userId: 'a' });
 
-      const spy = jest.spyOn(HttpMethodController, 'validationFunc').mockResolvedValue(true);
+      const spy = jest.spyOn(Validation, 'check').mockResolvedValue(true);
 
       /* ------------------------ テスト対象関数を実行 ------------------------ */
       const result = await test.handler(event);
@@ -153,7 +159,7 @@ describe('HttpMethodController', () => {
       const event: any = { httpMethod: 'GET' };
       HttpMethodController.authenticationFunc = jest.fn().mockRejectedValue({ userId: 'a' });
 
-      const spy = jest.spyOn(HttpMethodController, 'validationFunc').mockResolvedValue(true);
+      const spy = jest.spyOn(Validation, 'check').mockResolvedValue(true);
 
       /* ------------------------ テスト対象関数を実行 ------------------------ */
       const result = await test.handler(event);
@@ -171,7 +177,7 @@ describe('HttpMethodController', () => {
       const event: any = { httpMethod: 'GET' };
       HttpMethodController.authenticationFunc = jest.fn().mockResolvedValue({ error401: true, error500: false });
 
-      const spy = jest.spyOn(HttpMethodController, 'validationFunc').mockResolvedValue(true);
+      const spy = jest.spyOn(Validation, 'check').mockResolvedValue(true);
 
       /* ------------------------ テスト対象関数を実行 ------------------------ */
       const result = await test.handler(event);
@@ -181,6 +187,57 @@ describe('HttpMethodController', () => {
       expect(HttpMethodController.authenticationFunc).toBeCalled();
       expect(spy).not.toBeCalled();
       expect(test).toBeMethodDefied('GET').toBeMethodFunction('GET', 'get').toBeMethodAuthentication('GET');
+    });
+
+    it('カスタムバリデーションがInternalServerErrorの場合', async () => {
+      /* --------------------------- テストの前処理 --------------------------- */
+      const test = new Test4Controller();
+      const event: any = { httpMethod: 'GET' };
+
+      const spy = jest.spyOn(Validation, 'check').mockResolvedValue(true);
+
+      /* ------------------------ テスト対象関数を実行 ------------------------ */
+      const result = await test.handler(event);
+
+      /* ------------------------------ 評価項目 ------------------------------ */
+      expect(result).toEqual(HttpMethodController.internalServerErrorResponse);
+      expect(spy).toBeCalled();
+      expect(test).toBeMethodDefied('GET').toBeMethodFunction('GET', 'get');
+    });
+
+    it('カスタムバリデーションエラーの場合', async () => {
+      /* --------------------------- テストの前処理 --------------------------- */
+      const test = new Test5Controller();
+      const event: any = { httpMethod: 'GET' };
+
+      const spy = jest.spyOn(Validation, 'check').mockResolvedValue(true);
+
+      /* ------------------------ テスト対象関数を実行 ------------------------ */
+      const result = await test.handler(event);
+
+      /* ------------------------------ 評価項目 ------------------------------ */
+      expect(result).toEqual(HttpMethodController.badRequestResponse);
+      expect(spy).toBeCalled();
+      expect(test).toBeMethodDefied('GET').toBeMethodFunction('GET', 'get');
+    });
+
+    it('カスタムバリデーション成功の場合', async () => {
+      /* --------------------------- テストの前処理 --------------------------- */
+      const test = new Test6Controller();
+      const event: any = { httpMethod: 'GET' };
+
+      const spy = jest.spyOn(Validation, 'check').mockResolvedValue(true);
+
+      /* ------------------------ テスト対象関数を実行 ------------------------ */
+      const result = await test.handler(event);
+
+      /* ------------------------------ 評価項目 ------------------------------ */
+      expect(result).toEqual({
+        body: JSON.stringify({ uri: '/test' }),
+        statusCode: 200
+      });
+      expect(spy).toBeCalled();
+      expect(test).toBeMethodDefied('GET').toBeMethodFunction('GET', 'get');
     });
   });
 });
@@ -234,6 +291,91 @@ class Test3Controller extends HttpMethodController<any> {
     return {
       body: JSON.stringify({ ...event.userInfo, ...{ uri: '/test' } }),
       statusCode: 200
+    };
+  }
+}
+
+class Test4Controller extends HttpMethodController<any> {
+  public constructor() {
+    super();
+    this.setMethod('GET', {
+      func: this.get,
+      isAuthentication: false,
+      validation: {},
+      customValidationFunc: this.getCustomValidation
+    });
+  }
+
+  private async get(event: CallFunctionEventParameter<any, never, never, never, any>): Promise<APIGatewayProxyResult> {
+    return {
+      body: JSON.stringify({ ...event.userInfo, ...{ uri: '/test' } }),
+      statusCode: 200
+    };
+  }
+
+  private async getCustomValidation(
+    event: CustomValidationFunctionEventParameter<never, never, never, any>
+  ): Promise<CustomValidationFunctionResult> {
+    return {
+      validationResult: false,
+      errorResponse: {
+        statusCode: 500,
+        body: 'Internal Server Error'
+      }
+    };
+  }
+}
+
+class Test5Controller extends HttpMethodController<any> {
+  public constructor() {
+    super();
+    this.setMethod('GET', {
+      func: this.get,
+      isAuthentication: false,
+      validation: {},
+      customValidationFunc: this.getCustomValidation
+    });
+  }
+
+  private async get(event: CallFunctionEventParameter<any, never, never, never, any>): Promise<APIGatewayProxyResult> {
+    return {
+      body: JSON.stringify({ ...event.userInfo, ...{ uri: '/test' } }),
+      statusCode: 200
+    };
+  }
+
+  private async getCustomValidation(
+    event: CustomValidationFunctionEventParameter<never, never, never, any>
+  ): Promise<CustomValidationFunctionResult> {
+    return {
+      validationResult: false
+    };
+  }
+}
+
+class Test6Controller extends HttpMethodController<any> {
+  public constructor() {
+    super();
+    this.setMethod('GET', {
+      func: this.get,
+      isAuthentication: false,
+      validation: {},
+      customValidationFunc: this.getCustomValidation
+    });
+  }
+
+  private async get(event: CallFunctionEventParameter<any, never, never, never, any>): Promise<APIGatewayProxyResult> {
+    return {
+      body: JSON.stringify({ ...{ uri: '/test' } }),
+      statusCode: 200
+    };
+  }
+
+  private async getCustomValidation(
+    event: CustomValidationFunctionEventParameter<never, never, never, any>
+  ): Promise<CustomValidationFunctionResult> {
+    return {
+      validationResult: true
     };
   }
 }

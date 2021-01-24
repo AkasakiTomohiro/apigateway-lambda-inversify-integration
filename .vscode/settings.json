@@ -1,8 +1,10 @@
 {
   "cSpell.words": [
+    "codecov",
     "commitlint",
     "conventionalcommits",
     "inversify",
+    "lcov",
     "vuex"
   ],
   "source.organizeImports": false,
