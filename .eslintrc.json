@@ -79,7 +79,7 @@
       {
         "selector": "typeParameter",
         "format": ["PascalCase"],
-        "prefix": ["T", "U", "K", "P", "E"]
+        "prefix": ["T", "U", "K", "P", "E", "L"]
       }
     ]
   }

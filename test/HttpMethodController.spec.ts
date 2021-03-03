@@ -245,14 +245,14 @@ describe('HttpMethodController', () => {
 class Test1Controller extends HttpMethodController<any> {
   public constructor() {
     super();
-    this.setMethod('GET', {
-      func: this.get,
+    this.setMethod<Test1Controller, never, never, never, any>('GET', {
+      func: 'get',
       isAuthentication: false,
       validation: {}
     });
   }
 
-  private async get(event: CallFunctionEventParameter<any, never, never, never, any>): Promise<APIGatewayProxyResult> {
+  public async get(event: CallFunctionEventParameter<any, never, never, never, any>): Promise<APIGatewayProxyResult> {
     return {
       body: JSON.stringify({ ...event.userInfo, ...{ uri: '/test' } }),
       statusCode: 200
@@ -263,14 +263,14 @@ class Test1Controller extends HttpMethodController<any> {
 class Test2Controller extends HttpMethodController<any> {
   public constructor() {
     super();
-    this.setMethod('GET', {
-      func: this.get,
+    this.setMethod<Test2Controller, never, never, never, any>('GET', {
+      func: 'get',
       isAuthentication: false,
       validation: {}
     });
   }
 
-  private async get(event: CallFunctionEventParameter<any, never, never, never, any>): Promise<APIGatewayProxyResult> {
+  public async get(event: CallFunctionEventParameter<any, never, never, never, any>): Promise<APIGatewayProxyResult> {
     return new Promise<any>((resolve, rejects) => {
       rejects();
     });
@@ -280,14 +280,14 @@ class Test2Controller extends HttpMethodController<any> {
 class Test3Controller extends HttpMethodController<any> {
   public constructor() {
     super();
-    this.setMethod('GET', {
-      func: this.get,
+    this.setMethod<Test3Controller, never, never, never, any>('GET', {
+      func: 'get',
       isAuthentication: true,
       validation: {}
     });
   }
 
-  private async get(event: CallFunctionEventParameter<any, never, never, never, any>): Promise<APIGatewayProxyResult> {
+  public async get(event: CallFunctionEventParameter<any, never, never, never, any>): Promise<APIGatewayProxyResult> {
     return {
       body: JSON.stringify({ ...event.userInfo, ...{ uri: '/test' } }),
       statusCode: 200
@@ -298,15 +298,15 @@ class Test3Controller extends HttpMethodController<any> {
 class Test4Controller extends HttpMethodController<any> {
   public constructor() {
     super();
-    this.setMethod('GET', {
-      func: this.get,
+    this.setMethod<Test4Controller, never, never, never, any>('GET', {
+      func: 'get',
       isAuthentication: false,
       validation: {},
       customValidationFunc: this.getCustomValidation
     });
   }
 
-  private async get(event: CallFunctionEventParameter<any, never, never, never, any>): Promise<APIGatewayProxyResult> {
+  public async get(event: CallFunctionEventParameter<any, never, never, never, any>): Promise<APIGatewayProxyResult> {
     return {
       body: JSON.stringify({ ...event.userInfo, ...{ uri: '/test' } }),
       statusCode: 200
@@ -329,15 +329,15 @@ class Test4Controller extends HttpMethodController<any> {
 class Test5Controller extends HttpMethodController<any> {
   public constructor() {
     super();
-    this.setMethod('GET', {
-      func: this.get,
+    this.setMethod<Test5Controller, never, never, never, any>('GET', {
+      func: 'get',
       isAuthentication: false,
       validation: {},
       customValidationFunc: this.getCustomValidation
     });
   }
 
-  private async get(event: CallFunctionEventParameter<any, never, never, never, any>): Promise<APIGatewayProxyResult> {
+  public async get(event: CallFunctionEventParameter<any, never, never, never, any>): Promise<APIGatewayProxyResult> {
     return {
       body: JSON.stringify({ ...event.userInfo, ...{ uri: '/test' } }),
       statusCode: 200
@@ -356,15 +356,15 @@ class Test5Controller extends HttpMethodController<any> {
 class Test6Controller extends HttpMethodController<any> {
   public constructor() {
     super();
-    this.setMethod('GET', {
-      func: this.get,
+    this.setMethod<Test6Controller, never, never, never, any>('GET', {
+      func: 'get',
       isAuthentication: false,
       validation: {},
       customValidationFunc: this.getCustomValidation
     });
   }
 
-  private async get(event: CallFunctionEventParameter<any, never, never, never, any>): Promise<APIGatewayProxyResult> {
+  public async get(event: CallFunctionEventParameter<any, never, never, never, any>): Promise<APIGatewayProxyResult> {
     return {
       body: JSON.stringify({ ...{ uri: '/test' } }),
       statusCode: 200
