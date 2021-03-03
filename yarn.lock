@@ -1005,20 +1005,20 @@ anymatch@^3.0.3:
     normalize-path "^3.0.0"
     picomatch "^2.0.4"
 
-apigateway-lambda-inversify-integration-jest@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/apigateway-lambda-inversify-integration-jest/-/apigateway-lambda-inversify-integration-jest-1.0.2.tgz#b9ca60b13df7a9cbd2ddc568e0603bd115f901cf"
-  integrity sha512-CxBX6rY9cQx8RbEHKO49wa/N+RTg+NrqzrcL+uifs9j7vSvU7z/qRwUyjHdSr4GSbRhCE6KpTeDyiqc+VkZ+XA==
+apigateway-lambda-inversify-integration-jest@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/apigateway-lambda-inversify-integration-jest/-/apigateway-lambda-inversify-integration-jest-3.0.0.tgz#5d0085ec680066e01394abe451685635059790eb"
+  integrity sha512-U+wIhHf6VbA5ht9/F0kG/3E16RvLODllU461w0JQBEn4vqbqjRbvVhtTb3bR7g89DVrRed6peJr8gc8BwD2+JQ==
   dependencies:
-    apigateway-lambda-inversify-integration "^1.4.1"
+    apigateway-lambda-inversify-integration "^3.0.0"
     deep-equal "^2.0.5"
     inversify "^5.0.1"
     reflect-metadata "^0.1.13"
 
-apigateway-lambda-inversify-integration@^1.4.1:
-  version "1.5.1"
-  resolved "https://registry.yarnpkg.com/apigateway-lambda-inversify-integration/-/apigateway-lambda-inversify-integration-1.5.1.tgz#c16c4b1fa42abf13ea752c780330cc3c80f18eaf"
-  integrity sha512-QcGkGq10rjd3ZAw6muWJENs5vsPxITJZrfw5iA7OloVyH04Jb0pOZRpyN+In2dfF46YTiG/HtcgaY/PUTpSyYA==
+apigateway-lambda-inversify-integration@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/apigateway-lambda-inversify-integration/-/apigateway-lambda-inversify-integration-3.0.0.tgz#28409ab6eae31dcfa86f1f2fa9ee7490d4e9658b"
+  integrity sha512-e/1gGvSOozusUitDO2rAufwOYp7ZM3JCIbLO9aITy05poLKLBr7XpAF4tZkHtcKEXL3bojjSGpoVVwHelxTnJQ==
   dependencies:
     deep-equal "^2.0.5"
     inversify "^5.0.1"
