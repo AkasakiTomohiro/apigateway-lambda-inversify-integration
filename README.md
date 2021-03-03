@@ -39,7 +39,8 @@ GET /test
 ```
 #### Creating a class to handle the `/test`
 
-``` TestController.ts
+TestController.ts
+```typescript
 import { APIGatewayProxyResult } from 'aws-lambda';
 import { CallFunctionEventParameter, HttpMethodController } from 'apigateway-lambda-inversify-integration';
 export class TestController extends HttpMethodController {
@@ -73,8 +74,9 @@ Now we have created the class corresponding to `GET /test`.
 #### Register in the DI container
 
 The `TestController` is managed by the DI container of `inversify` with the URI as its ID.
+Container.ts
 
-``` Container.ts
+```typescript
 import { Container } from 'inversify';
 import { TestController } from 'apigateway-lambda-inversify-integration';
 export function createContainer(): Container {
@@ -90,7 +92,8 @@ export const TYPES = {
 ```
 #### Creating a Lambda entry point
 
-``` index.ts
+index.ts
+```typescript
 import 'reflect-metadata';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { HttpMethodController } from 'apigateway-lambda-inversify-integration';
@@ -113,8 +116,9 @@ export async function handler(event: APIGatewayProxyEvent): Promise<any> {
 ### 2. how to specify the HTTP Method
 
 If you want to increase not only the `GET /test` but also the `POST /test`, you can increase the HTTP Method for the URI as follows.
+TestController.ts
 
-``` TestController.ts
+```typescript
 import { APIGatewayProxyResult } from 'aws-lambda';
 import { CallFunctionEventParameter, HttpMethodController } from 'apigateway-lambda-inversify-integration';
 export class TestController extends HttpMethodController<never> {
@@ -153,7 +157,8 @@ export class TestController extends HttpMethodController<never> {
 
 #### Create a function for authentication
 
-``` Authentication.ts
+Authentication.ts
+```typescript
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { AuthenticationFunctionResult } from 'apigateway-lambda-inversify-integration';
 export function authentication(event: APIGatewayProxyEvent): Promise<AuthenticationFunctionResult<UserType>> {
@@ -182,7 +187,7 @@ type Role = typeof roleList[number];
 The return value of `authentication` should be returned by specifying one of the following three.
 
 - Successful authentication
-```
+```json
 {
   userInfo: User information you want to use after authentication,
   error401: false,
@@ -191,7 +196,7 @@ The return value of `authentication` should be returned by specifying one of the
 ```
 
 - Failure to authenticate
-```
+```json
 {
   userInfo: undefined,
   error401: true,
@@ -199,7 +204,7 @@ The return value of `authentication` should be returned by specifying one of the
 }
 ```
 - Server Error
-```
+```json
 {
   userInfo: undefined,
   error401: false,
@@ -209,7 +214,9 @@ The return value of `authentication` should be returned by specifying one of the
 
 #### Registration of the authentication function
 
-``` index.ts
+index.ts
+
+```typescript
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import 'reflect-metadata';
 import { HttpMethodController } from 'apigateway-lambda-inversify-integration';
@@ -238,8 +245,9 @@ export async function handler(event: APIGatewayProxyEvent): Promise<any> {
 ```
 
 If you want to set the authentication to Method, set the second argument of `setMethod` `isAuthentication` to `true`.
+TestController.ts
 
-``` TestController.ts
+```typescript
 import { APIGatewayProxyResult } from 'aws-lambda';
 import { CallFunctionEventParameter, HttpMethodController } from 'apigateway-lambda-inversify-integration';
 export class TestController extends HttpMethodController {
@@ -273,8 +281,9 @@ GET /test
 ```
 
 For the `id`, a string of 1-10 characters of numeric alphabets (lowercase and uppercase) is acceptable.
+TestIdController.ts
 
-``` TestIdController.ts
+```typescript
 import { APIGatewayProxyResult } from 'aws-lambda';
 
 import { CallFunctionEventParameter, HttpMethodController } from 'apigateway-lambda-inversify-integration';
@@ -408,7 +417,7 @@ Several Matchers have been implemented for unit testing of HttpMethodController.
 
 For example, if you have a class called Test1Controller that extends HttpMethodController, and you want to evaluate whether a GET method has been defined, you can evaluate it as follows
 
-``` test.ts
+```typescript
   it('Test', async () => {
     const controller = new Test1Controller();
     expect(controller).toBeMethodDefied('GET');
@@ -419,7 +428,7 @@ For example, if you have a class called Test1Controller that extends HttpMethodC
 
 For methods that require authentication
 
-``` test.ts
+```typescript
   it('Test', async () => {
     const controller = new Test1Controller();
     expect(controller).toBeMethodAuthentication('GET');
@@ -428,7 +437,7 @@ For methods that require authentication
 
 For methods that do not require authentication
 
-``` test.ts
+```typescript
   it('Test', async () => {
     const controller = new Test1Controller();
     expect(controller).not.toBeMethodAuthentication('GET');
@@ -437,7 +446,7 @@ For methods that do not require authentication
 
 ・ Matcher that evaluates whether or not the specified function is defined in the specified HTTP method.
 
-``` test.ts
+```typescript
   it('Test', async () => {
     const controller = new Test1Controller();
     expect(controller).toBeMethodFunction('GET', 'get');
@@ -448,7 +457,7 @@ For methods that do not require authentication
 
 When the ITest type is defined in the Body parameter of the POST method in Test1Controller, validation can be evaluated for each key of the ITest type.
 
-``` test.ts
+```typescript
  it('Test', async () => {
     const controller = new Test1Controller();
     const validation: Validators = { type: 'string', required: true };
@@ -456,7 +465,9 @@ When the ITest type is defined in the Body parameter of the POST method in Test1
   });
 ```
 
-``` Defined.ts
+Defined.ts
+
+```typescript
 class Test1Controller extends HttpMethodController<any> {
   public constructor() {
     super();
