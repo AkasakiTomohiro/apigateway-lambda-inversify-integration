@@ -43,7 +43,7 @@ export abstract class HttpMethodController<E = never> {
   /**
    * pre-processing definition for HttpMethod
    */
-  private conditions: Conditions<E> = {};
+  private conditions: Conditions<E, HttpMethodController<E>> = {};
 
   /**
    * Authentication
@@ -54,7 +54,7 @@ export abstract class HttpMethodController<E = never> {
    */
   private static async auth<E>(
     event: APIGatewayProxyEvent,
-    condition: Condition<E>
+    condition: Condition<E, HttpMethodController<E>>
   ): Promise<AuthenticationFunctionResult<E>> {
     if (condition.isAuthentication) {
       if (HttpMethodController.authenticationFunc === undefined) {
@@ -134,15 +134,13 @@ export abstract class HttpMethodController<E = never> {
         }
       }
 
-      return condition
-        .func({
-          headers: event.headers,
-          pathParameters: event.pathParameters,
-          body: event.body,
-          queryParameters: event.queryStringParameters,
-          userInfo: authResult.userInfo as E
-        })
-        .catch(() => HttpMethodController.internalServerErrorResponse);
+      return ((controller[condition.func] as unknown) as CallFunction<E, any, any, any, any>)({
+        headers: event.headers,
+        pathParameters: event.pathParameters,
+        body: event.body,
+        queryParameters: event.queryStringParameters,
+        userInfo: authResult.userInfo as E
+      }).catch(() => HttpMethodController.internalServerErrorResponse);
     }
   }
 
@@ -166,9 +164,17 @@ export abstract class HttpMethodController<E = never> {
    *
    * @param method Which HttpMethod is used for pre-processing
    * @param condition Specifies function preprocessing for HttpMethod
+   * @typeParam L - Subclass from HttpMethodController
+   * @typeParam T - HTTP Body
+   * @typeParam U - HTTP URL Path Parameter
+   * @typeParam K - HTTP URL Path Query Parameter
+   * @typeParam P - HTTP Header
    */
-  protected setMethod<T, U, K, P>(method: HttpMethod, condition: Condition<E, T, U, K, P>): void {
-    this.conditions[method] = condition;
+  protected setMethod<L extends HttpMethodController<E>, T, U, K, P>(
+    method: HttpMethod,
+    condition: Condition<E, L, T, U, K, P>
+  ): void {
+    (this.conditions[method] as any) = condition;
   }
 }
 
@@ -176,19 +182,20 @@ export abstract class HttpMethodController<E = never> {
  * Defining a process for each HTTP method
  * @typeParam E - User Information
  */
-export type Conditions<E> = {
-  [key in HttpMethod]?: Condition<E>;
+export type Conditions<E, L extends HttpMethodController<E>> = {
+  [key in HttpMethod]?: Condition<E, L>;
 };
 
 /**
  * Specifies function preprocessing for HttpMethod
  * @typeParam E - User Information
+ * @typeParam L - Subclass from HttpMethodController
  * @typeParam T - HTTP Body
  * @typeParam U - HTTP URL Path Parameter
  * @typeParam K - HTTP URL Path Query Parameter
  * @typeParam P - HTTP Header
  */
-export type Condition<E, T = any, U = any, K = any, P = any> = {
+export type Condition<E, L extends HttpMethodController<E>, T = any, U = any, K = any, P = any> = {
   /**
    * Do you perform the authentication before calling the function?
    */
@@ -202,13 +209,29 @@ export type Condition<E, T = any, U = any, K = any, P = any> = {
   /**
    * Functions to be executed by the API
    */
-  func: CallFunction<E, T, U, K, P>;
+  func: keyof FuncFilterType<E, L, T, U, K, P>;
 
   /**
    * Custom validation of HTTP Body, Path Parameter, Path Query Parameter, and Header
    */
   customValidationFunc?: CustomValidationFunction<T, U, K, P>;
 };
+
+/**
+ * A type that retrieves only parameters in the form of a CallFunction from an object.
+ * @typeParam E - User Information
+ * @typeParam L - Class derived from HttpMethodController
+ * @typeParam T - HTTP Body
+ * @typeParam U - HTTP URL Path Parameter
+ * @typeParam K - HTTP URL Path Query Parameter
+ * @typeParam P - HTTP Header
+ */
+type FuncFilterType<E, L extends HttpMethodController<E>, T, U, K, P> = Pick<
+  L,
+  {
+    [Key in keyof L]: L[Key] extends CallFunction<E, T, U, K, P> ? Key : never;
+  }[keyof L]
+>;
 
 /**
  * Function arguments to be performed in the API
