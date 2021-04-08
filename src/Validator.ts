@@ -48,13 +48,13 @@ export interface ICustomValidator<T> {
   readonly validationFunc: (param: T) => boolean;
 }
 
-export type PrimitiveValidators<T> =
+export type PrimitiveValidators<T extends Record<string, any>> =
   | IStringRequestValidator
   | INumberRequestValidator
   | IBooleanRequestValidator
   | ICustomValidator<T>;
 
-export type Validators<T = any> =
+export type Validators<T extends Record<string, any> = any> =
   | IStringRequestValidator
   | INumberRequestValidator
   | IBooleanRequestValidator
@@ -63,7 +63,7 @@ export type Validators<T = any> =
   | IArrayRequestValidator<T>
   | ICustomValidator<T>;
 
-export type Validator<T> = {
+export type Validator<T extends Record<string, any>> = {
   readonly [U in keyof T]-?: T[U] extends (infer R)[]
     ? R extends object
       ? Validators<Validator<R>>
