@@ -68,7 +68,7 @@ describe('HttpMethodController', () => {
     it('バリデーションに成功した場合', async () => {
       /* --------------------------- テストの前処理 --------------------------- */
       const test = new Test1Controller();
-      const event: any = { httpMethod: 'GET' };
+      const event: any = { httpMethod: 'GET', body: '{}' };
 
       const spy = jest.spyOn(Validation, 'check').mockResolvedValue(true);
 
