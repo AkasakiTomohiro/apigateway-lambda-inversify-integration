@@ -68,7 +68,7 @@ describe('HttpMethodController', () => {
     it('バリデーションに成功した場合', async () => {
       /* --------------------------- テストの前処理 --------------------------- */
       const test = new Test1Controller();
-      const event: any = { httpMethod: 'GET' };
+      const event: any = { httpMethod: 'GET', body: '{}' };
 
       const spy = jest.spyOn(Validation, 'check').mockResolvedValue(true);
 
@@ -81,7 +81,11 @@ describe('HttpMethodController', () => {
         statusCode: 200
       });
       expect(spy).toBeCalled();
-      expect(test).toBeMethodDefied('GET').toBeMethodFunction('GET', 'get').not.toBeMethodAuthentication('GET');
+      expect(test)
+        .toBeMethodDefied('GET')
+        .toBeMethodFunction('GET', 'get')
+        .not.toBeMethodAuthentication('GET')
+        .toBeMethodUserRole('GET', []);
     });
 
     it('バリデーションエラーの場合', async () => {
@@ -97,7 +101,11 @@ describe('HttpMethodController', () => {
       /* ------------------------------ 評価項目 ------------------------------ */
       expect(result).toEqual(HttpMethodController.badRequestResponse);
       expect(spy).toBeCalled();
-      expect(test).toBeMethodDefied('GET').toBeMethodFunction('GET', 'get').not.toBeMethodAuthentication('GET');
+      expect(test)
+        .toBeMethodDefied('GET')
+        .toBeMethodFunction('GET', 'get')
+        .not.toBeMethodAuthentication('GET')
+        .toBeMethodUserRole('GET', []);
     });
 
     it('Conditionの指定された関数でエラーが発生した場合', async () => {
@@ -113,7 +121,11 @@ describe('HttpMethodController', () => {
       /* ------------------------------ 評価項目 ------------------------------ */
       expect(result).toEqual(HttpMethodController.internalServerErrorResponse);
       expect(spy).toBeCalled();
-      expect(test).toBeMethodDefied('GET').toBeMethodFunction('GET', 'get').not.toBeMethodAuthentication('GET');
+      expect(test)
+        .toBeMethodDefied('GET')
+        .toBeMethodFunction('GET', 'get')
+        .not.toBeMethodAuthentication('GET')
+        .toBeMethodUserRole('GET', []);
     });
 
     it('認証関数が未定義の場合', async () => {
@@ -129,7 +141,11 @@ describe('HttpMethodController', () => {
       /* ------------------------------ 評価項目 ------------------------------ */
       expect(result).toEqual(HttpMethodController.internalServerErrorResponse);
       expect(spy).not.toBeCalled();
-      expect(test).toBeMethodDefied('GET').toBeMethodFunction('GET', 'get').toBeMethodAuthentication('GET');
+      expect(test)
+        .toBeMethodDefied('GET')
+        .toBeMethodFunction('GET', 'get')
+        .toBeMethodAuthentication('GET')
+        .toBeMethodUserRole('GET', []);
     });
 
     it('認証に成功した場合', async () => {
@@ -150,7 +166,11 @@ describe('HttpMethodController', () => {
       });
       expect(HttpMethodController.authenticationFunc).toBeCalled();
       expect(spy).toBeCalled();
-      expect(test).toBeMethodDefied('GET').toBeMethodFunction('GET', 'get').toBeMethodAuthentication('GET');
+      expect(test)
+        .toBeMethodDefied('GET')
+        .toBeMethodFunction('GET', 'get')
+        .toBeMethodAuthentication('GET')
+        .toBeMethodUserRole('GET', []);
     });
 
     it('認証に失敗した場合:500', async () => {
@@ -168,7 +188,11 @@ describe('HttpMethodController', () => {
       expect(result).toEqual(HttpMethodController.internalServerErrorResponse);
       expect(HttpMethodController.authenticationFunc).toBeCalled();
       expect(spy).not.toBeCalled();
-      expect(test).toBeMethodDefied('GET').toBeMethodFunction('GET', 'get').toBeMethodAuthentication('GET');
+      expect(test)
+        .toBeMethodDefied('GET')
+        .toBeMethodFunction('GET', 'get')
+        .toBeMethodAuthentication('GET')
+        .toBeMethodUserRole('GET', []);
     });
 
     it('認証に失敗した場合:401', async () => {
@@ -186,7 +210,11 @@ describe('HttpMethodController', () => {
       expect(result).toEqual(HttpMethodController.unauthorizeErrorResponse);
       expect(HttpMethodController.authenticationFunc).toBeCalled();
       expect(spy).not.toBeCalled();
-      expect(test).toBeMethodDefied('GET').toBeMethodFunction('GET', 'get').toBeMethodAuthentication('GET');
+      expect(test)
+        .toBeMethodDefied('GET')
+        .toBeMethodFunction('GET', 'get')
+        .toBeMethodAuthentication('GET')
+        .toBeMethodUserRole('GET', []);
     });
 
     it('権限が不足している場合:403', async () => {
@@ -206,7 +234,11 @@ describe('HttpMethodController', () => {
       expect(result).toEqual(HttpMethodController.forbiddenErrorResponse);
       expect(HttpMethodController.authenticationFunc).toBeCalled();
       expect(spy).not.toBeCalled();
-      expect(test).toBeMethodDefied('GET').toBeMethodFunction('GET', 'get').toBeMethodAuthentication('GET');
+      expect(test)
+        .toBeMethodDefied('GET')
+        .toBeMethodFunction('GET', 'get')
+        .toBeMethodAuthentication('GET')
+        .toBeMethodUserRole('GET', []);
     });
 
     it('カスタムバリデーションがInternalServerErrorの場合', async () => {
@@ -222,7 +254,7 @@ describe('HttpMethodController', () => {
       /* ------------------------------ 評価項目 ------------------------------ */
       expect(result).toEqual(HttpMethodController.internalServerErrorResponse);
       expect(spy).toBeCalled();
-      expect(test).toBeMethodDefied('GET').toBeMethodFunction('GET', 'get');
+      expect(test).toBeMethodDefied('GET').toBeMethodFunction('GET', 'get').toBeMethodUserRole('GET', []);
     });
 
     it('カスタムバリデーションエラーの場合', async () => {
@@ -238,7 +270,7 @@ describe('HttpMethodController', () => {
       /* ------------------------------ 評価項目 ------------------------------ */
       expect(result).toEqual(HttpMethodController.badRequestResponse);
       expect(spy).toBeCalled();
-      expect(test).toBeMethodDefied('GET').toBeMethodFunction('GET', 'get');
+      expect(test).toBeMethodDefied('GET').toBeMethodFunction('GET', 'get').toBeMethodUserRole('GET', []);
     });
 
     it('カスタムバリデーション成功の場合', async () => {
@@ -257,7 +289,7 @@ describe('HttpMethodController', () => {
         statusCode: 200
       });
       expect(spy).toBeCalled();
-      expect(test).toBeMethodDefied('GET').toBeMethodFunction('GET', 'get');
+      expect(test).toBeMethodDefied('GET').toBeMethodFunction('GET', 'get').toBeMethodUserRole('GET', []);
     });
   });
 });

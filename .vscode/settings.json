@@ -1,10 +1,12 @@
 {
   "cSpell.words": [
+    "authorizable",
     "codecov",
     "commitlint",
     "conventionalcommits",
     "inversify",
     "lcov",
+    "typeof",
     "vuex"
   ],
   "source.organizeImports": false,
