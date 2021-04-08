@@ -8,9 +8,10 @@ import { Validator } from './Validator';
 /**
  * A class that can define a process corresponding to the Method
  * @typeParam E - Authentication results, user information, etc.
+ * @typeParam M - Authorizable user rights
  */
 @injectable()
-export abstract class HttpMethodController<E extends UserInfoType = never> {
+export abstract class HttpMethodController<E extends UserInfoType = never, M extends UserRoleType = never> {
   /**
    * Objects returned in case of a validation error
    */
@@ -72,7 +73,7 @@ export abstract class HttpMethodController<E extends UserInfoType = never> {
           error500: true
         };
       } else {
-        const result = await HttpMethodController.authenticationFunc(event).catch(() => {
+        const result = await HttpMethodController.authenticationFunc(event, condition.roles).catch(() => {
           return {
             error401: false,
             error403: false,
@@ -167,6 +168,7 @@ export abstract class HttpMethodController<E extends UserInfoType = never> {
    *          Error Response
    *          - Bad Request
    *          - Unauthorize
+   *          - Forbidden
    *          - Internal Server Error
    */
   public async handler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
@@ -190,7 +192,7 @@ export abstract class HttpMethodController<E extends UserInfoType = never> {
     U extends PathParameterType,
     K extends QueryParameterType,
     P extends HeaderType
-  >(method: HttpMethod, condition: Condition<E, L, T, U, K, P>): void {
+  >(method: HttpMethod, condition: Condition<E, L, T, U, K, P, M>): void {
     (this.conditions[method] as any) = condition;
   }
 }
@@ -218,12 +220,18 @@ export type Condition<
   T extends BodyType = any,
   U extends PathParameterType = any,
   K extends QueryParameterType = any,
-  P extends HeaderType = any
+  P extends HeaderType = any,
+  M extends UserRoleType = any
 > = {
   /**
    * Do you perform the authentication before calling the function?
    */
   isAuthentication: boolean;
+
+  /**
+   * List of users allowed to execute 'func' after authentication
+   */
+  roles: M[];
 
   /**
    * Validation of function parameters
@@ -364,7 +372,7 @@ export type CustomValidationFunctionEventParameter<
 };
 
 /**
- *
+ * Custom Validation Functions
  * @typeParam T - HTTP Body
  * @typeParam U - HTTP URL Path Parameter
  * @typeParam K - HTTP URL Path Query Parameter
@@ -399,6 +407,10 @@ export type CustomValidationFunctionResult = {
 
 /**
  * Validation list
+ * @typeParam T - HTTP Body
+ * @typeParam U - HTTP URL Path Parameter
+ * @typeParam K - HTTP URL Path Query Parameter
+ * @typeParam P - HTTP Header
  */
 export interface IValidation<
   T extends BodyType,
@@ -429,11 +441,17 @@ export interface IValidation<
 
 /**
  * Authenticate function Type
+ * @description
+ * Performs user authentication based on event information.
+ * It also allows the permissions specified in roles.
  * @returns Parameters you wish to return in the authentication results
  * e.g. user ID
+ * @typeParam E - User Information
+ * @typeParam M - Authorizable user rights
  */
-export type AuthenticationFunction<E extends UserInfoType = any> = (
-  event: APIGatewayProxyEvent
+export type AuthenticationFunction<E extends UserInfoType = any, M extends UserRoleType = any> = (
+  event: APIGatewayProxyEvent,
+  roles: M
 ) => Promise<AuthenticationFunctionResult<E>>;
 
 /**
@@ -463,7 +481,10 @@ export type AuthenticationFunctionResult<E extends UserInfoType> = {
 
 /**
  * Validation Check Function
- * @returns 引数のバリデーションチェックの結果
+ * @description
+ * ex. `{a: ”XXX” | "YYY", b: number}`
+ * For example, when a is ""XXX"", b can be specified from 1 to 10, when a is "YYY", b can be specified from 11 to 20, and so on.
+ * @returns Result of the argument validation check
  */
 export type ValidationFunction<
   T extends BodyType = any,
@@ -479,26 +500,31 @@ export type ValidationFunction<
 ) => Promise<boolean>;
 
 /**
- * Body用の型
+ * Body Type
  */
 export type BodyType = Record<string, any>;
 
 /**
- * Header用の型
+ * Header Type
  */
 export type HeaderType = Record<string, any>;
 
 /**
- * PathParameter用の型
+ * PathParameter Type
  */
 export type PathParameterType = Record<string, any>;
 
 /**
- * QueryParameter用の型
+ * QueryParameter Type
  */
 export type QueryParameterType = Record<string, any>;
 
 /**
- * UserInfo用の型
+ * UserInfo Type
  */
 export type UserInfoType = Record<string, any>;
+
+/**
+ * UserRole Type
+ */
+export type UserRoleType = string | number;
