@@ -47,7 +47,7 @@ export class TestController extends HttpMethodController {
   public constructor() {
     super();
     this.setMethod('GET', {
-      func: this.get,
+      func: 'get',
       isAuthentication: false,
       validation: {}
     });
@@ -125,12 +125,14 @@ export class TestController extends HttpMethodController<never> {
   public constructor() {
     super();
     this.setMethod('GET', {
-      func: this.get,
+      func: 'get',
+      roles: [],
       isAuthentication: false,
       validation: {}
     });
     this.setMethod('POST', {
-      func: this.add,
+      func: 'add',
+      roles: [],
       isAuthentication: false,
       validation: {}
     });
@@ -161,7 +163,7 @@ Authentication.ts
 ```typescript
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { AuthenticationFunctionResult } from 'apigateway-lambda-inversify-integration';
-export function authentication(event: APIGatewayProxyEvent): Promise<AuthenticationFunctionResult<UserType>> {
+export function authentication(event: APIGatewayProxyEvent, roles: Role[]): Promise<AuthenticationFunctionResult<UserType>> {
   return new Promise<AuthenticationFunctionResult<UserType>>(resolve => {
     const userInfo: UserType = {
       userId: '6e1dca92-70f5-4531-8dc2-cc20dbca363b',
@@ -170,6 +172,7 @@ export function authentication(event: APIGatewayProxyEvent): Promise<Authenticat
     resolve({
       userInfo,
       error401: false,
+      error403: false,
       error500: false
     });
   });
@@ -191,6 +194,7 @@ The return value of `authentication` should be returned by specifying one of the
 {
   userInfo: User information you want to use after authentication,
   error401: false,
+  error403: false,
   error500: false
 }
 ```
@@ -200,14 +204,27 @@ The return value of `authentication` should be returned by specifying one of the
 {
   userInfo: undefined,
   error401: true,
+  error403: false,
   error500: false
 }
 ```
+
+- Failure to forbidden
+```json
+{
+  userInfo: undefined,
+  error401: false,
+  error403: true,
+  error500: false
+}
+```
+
 - Server Error
 ```json
 {
   userInfo: undefined,
   error401: false,
+  error403: false,
   error500: true
 }
 ```
@@ -254,7 +271,8 @@ export class TestController extends HttpMethodController {
   public constructor() {
     super();
     this.setMethod('GET', {
-      func: this.get,
+      func: 'get',
+      roles: [],
       isAuthentication: true,
       validation: {}
     });
@@ -288,11 +306,12 @@ import { APIGatewayProxyResult } from 'aws-lambda';
 
 import { CallFunctionEventParameter, HttpMethodController } from 'apigateway-lambda-inversify-integration';
 
-export class TestIdController extends HttpMethodController<UserType> {
+export class TestIdController extends HttpMethodController<UserType, Role> {
   public constructor() {
     super();
     this.setMethod('GET', {
-      func: this.get,
+      func: 'get',
+      roles: [],
       isAuthentication: true,
       validation: {
         paramValidator: {
@@ -468,11 +487,12 @@ When the ITest type is defined in the Body parameter of the POST method in Test1
 Defined.ts
 
 ```typescript
-class Test1Controller extends HttpMethodController<any> {
+class Test1Controller extends HttpMethodController<any, any> {
   public constructor() {
     super();
     this.setMethod('POST', {
-      func: this.test,
+      func: 'test',
+      roles: [],
       isAuthentication: false,
       validation: {
         bodyValidator: {

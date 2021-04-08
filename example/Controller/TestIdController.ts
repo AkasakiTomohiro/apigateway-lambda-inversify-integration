@@ -6,8 +6,9 @@ import { UserType } from '../User';
 export class TestIdController extends HttpMethodController<UserType> {
   public constructor() {
     super();
-    this.setMethod('GET', {
-      func: this.get,
+    this.setMethod<TestIdController, never, PathParameter, never, any>('GET', {
+      func: 'get',
+      roles: [],
       isAuthentication: true,
       validation: {
         paramValidator: {
@@ -21,7 +22,7 @@ export class TestIdController extends HttpMethodController<UserType> {
     });
   }
 
-  private async get(
+  public async get(
     event: CallFunctionEventParameter<UserType, never, PathParameter, never, any>
   ): Promise<APIGatewayProxyResult> {
     return {

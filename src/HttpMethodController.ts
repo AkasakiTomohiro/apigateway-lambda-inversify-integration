@@ -8,9 +8,10 @@ import { Validator } from './Validator';
 /**
  * A class that can define a process corresponding to the Method
  * @typeParam E - Authentication results, user information, etc.
+ * @typeParam M - Authorizable user rights
  */
 @injectable()
-export abstract class HttpMethodController<E = never> {
+export abstract class HttpMethodController<E extends UserInfoType = never, M extends UserRoleType = never> {
   /**
    * Objects returned in case of a validation error
    */
@@ -25,6 +26,14 @@ export abstract class HttpMethodController<E = never> {
   public static unauthorizeErrorResponse: APIGatewayProxyResult = {
     statusCode: 401,
     body: 'Unauthorize'
+  };
+
+  /**
+   * The object to be returned when the authentication authorization function returns Forbidden
+   */
+  public static forbiddenErrorResponse: APIGatewayProxyResult = {
+    statusCode: 403,
+    body: 'Forbidden'
   };
 
   /**
@@ -52,7 +61,7 @@ export abstract class HttpMethodController<E = never> {
    * @param  {Condition<E>} condition Defining a process for each HTTP method
    * @returns Promise<AuthenticationFunctionResult<E>>
    */
-  private static async auth<E>(
+  private static async auth<E extends UserInfoType>(
     event: APIGatewayProxyEvent,
     condition: Condition<E, HttpMethodController<E>>
   ): Promise<AuthenticationFunctionResult<E>> {
@@ -60,12 +69,14 @@ export abstract class HttpMethodController<E = never> {
       if (HttpMethodController.authenticationFunc === undefined) {
         return {
           error401: false,
+          error403: false,
           error500: true
         };
       } else {
-        const result = await HttpMethodController.authenticationFunc(event).catch(() => {
+        const result = await HttpMethodController.authenticationFunc(event, condition.roles).catch(() => {
           return {
             error401: false,
+            error403: false,
             error500: true
           };
         });
@@ -74,6 +85,7 @@ export abstract class HttpMethodController<E = never> {
     } else {
       return {
         error401: false,
+        error403: false,
         error500: false
       };
     }
@@ -91,7 +103,7 @@ export abstract class HttpMethodController<E = never> {
    *          - Unauthorize
    *          - Internal Server Error
    */
-  private static async handler<E>(
+  private static async handler<E extends UserInfoType>(
     controller: HttpMethodController<E>,
     event: APIGatewayProxyEvent
   ): Promise<APIGatewayProxyResult> {
@@ -100,9 +112,15 @@ export abstract class HttpMethodController<E = never> {
     if (condition === undefined) {
       return HttpMethodController.badRequestResponse;
     } else {
+      // API Gateway Body is a string type, so convert it to an object type.
+      event.body = event.body ? JSON.parse(event.body) : null;
+
       const authResult = await HttpMethodController.auth<E>(event, condition);
       if (authResult.error401) {
         return HttpMethodController.unauthorizeErrorResponse;
+      }
+      if (authResult.error403) {
+        return HttpMethodController.forbiddenErrorResponse;
       }
       if (authResult.error500) {
         return HttpMethodController.internalServerErrorResponse;
@@ -153,6 +171,7 @@ export abstract class HttpMethodController<E = never> {
    *          Error Response
    *          - Bad Request
    *          - Unauthorize
+   *          - Forbidden
    *          - Internal Server Error
    */
   public async handler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
@@ -170,10 +189,13 @@ export abstract class HttpMethodController<E = never> {
    * @typeParam K - HTTP URL Path Query Parameter
    * @typeParam P - HTTP Header
    */
-  protected setMethod<L extends HttpMethodController<E>, T, U, K, P>(
-    method: HttpMethod,
-    condition: Condition<E, L, T, U, K, P>
-  ): void {
+  protected setMethod<
+    L extends HttpMethodController<E>,
+    T extends BodyType,
+    U extends PathParameterType,
+    K extends QueryParameterType,
+    P extends HeaderType
+  >(method: HttpMethod, condition: Condition<E, L, T, U, K, P, M>): void {
     (this.conditions[method] as any) = condition;
   }
 }
@@ -182,7 +204,7 @@ export abstract class HttpMethodController<E = never> {
  * Defining a process for each HTTP method
  * @typeParam E - User Information
  */
-export type Conditions<E, L extends HttpMethodController<E>> = {
+export type Conditions<E extends UserInfoType, L extends HttpMethodController<E>> = {
   [key in HttpMethod]?: Condition<E, L>;
 };
 
@@ -195,11 +217,24 @@ export type Conditions<E, L extends HttpMethodController<E>> = {
  * @typeParam K - HTTP URL Path Query Parameter
  * @typeParam P - HTTP Header
  */
-export type Condition<E, L extends HttpMethodController<E>, T = any, U = any, K = any, P = any> = {
+export type Condition<
+  E extends UserInfoType,
+  L extends HttpMethodController<E>,
+  T extends BodyType = any,
+  U extends PathParameterType = any,
+  K extends QueryParameterType = any,
+  P extends HeaderType = any,
+  M extends UserRoleType = any
+> = {
   /**
    * Do you perform the authentication before calling the function?
    */
   isAuthentication: boolean;
+
+  /**
+   * List of users allowed to execute 'func' after authentication
+   */
+  roles: M[];
 
   /**
    * Validation of function parameters
@@ -226,11 +261,21 @@ export type Condition<E, L extends HttpMethodController<E>, T = any, U = any, K 
  * @typeParam K - HTTP URL Path Query Parameter
  * @typeParam P - HTTP Header
  */
-type FuncFilterType<E, L extends HttpMethodController<E>, T, U, K, P> = Pick<
-  L,
-  {
-    [Key in keyof L]: L[Key] extends CallFunction<E, T, U, K, P> ? Key : never;
-  }[keyof L]
+type FuncFilterType<
+  E extends UserInfoType,
+  L extends HttpMethodController<E>,
+  T extends BodyType,
+  U extends PathParameterType,
+  K extends QueryParameterType,
+  P extends HeaderType
+> = Omit<
+  Pick<
+    L,
+    {
+      [Key in keyof L]: L[Key] extends CallFunction<E, T, U, K, P> ? Key : never;
+    }[keyof L]
+  >,
+  'handler'
 >;
 
 /**
@@ -241,7 +286,13 @@ type FuncFilterType<E, L extends HttpMethodController<E>, T, U, K, P> = Pick<
  * @typeParam K - HTTP URL Path Query Parameter
  * @typeParam P - HTTP Header
  */
-export type CallFunctionEventParameter<E, T, U, K, P> = {
+export type CallFunctionEventParameter<
+  E extends UserInfoType,
+  T extends BodyType,
+  U extends PathParameterType,
+  K extends QueryParameterType,
+  P extends HeaderType
+> = {
   /**
    * Headers
    */
@@ -276,7 +327,13 @@ export type CallFunctionEventParameter<E, T, U, K, P> = {
  * @typeParam K - HTTP URL Path Query Parameter
  * @typeParam P - HTTP Header
  */
-export type CallFunction<E, T, U, K, P> = (
+export type CallFunction<
+  E extends UserInfoType,
+  T extends BodyType,
+  U extends PathParameterType,
+  K extends QueryParameterType,
+  P extends HeaderType
+> = (
   /**
    * Function arguments to be performed in the API
    */
@@ -290,7 +347,12 @@ export type CallFunction<E, T, U, K, P> = (
  * @typeParam K - HTTP URL Path Query Parameter
  * @typeParam P - HTTP Header
  */
-export type CustomValidationFunctionEventParameter<T, U, K, P> = {
+export type CustomValidationFunctionEventParameter<
+  T extends BodyType,
+  U extends PathParameterType,
+  K extends QueryParameterType,
+  P extends HeaderType
+> = {
   /**
    * Headers
    */
@@ -313,13 +375,18 @@ export type CustomValidationFunctionEventParameter<T, U, K, P> = {
 };
 
 /**
- *
+ * Custom Validation Functions
  * @typeParam T - HTTP Body
  * @typeParam U - HTTP URL Path Parameter
  * @typeParam K - HTTP URL Path Query Parameter
  * @typeParam P - HTTP Header
  */
-export type CustomValidationFunction<T, U, K, P> = (
+export type CustomValidationFunction<
+  T extends BodyType,
+  U extends PathParameterType,
+  K extends QueryParameterType,
+  P extends HeaderType
+> = (
   /**
    * HTTP Body, Path Parameter, Path Query Parameter, and Header
    */
@@ -343,8 +410,17 @@ export type CustomValidationFunctionResult = {
 
 /**
  * Validation list
+ * @typeParam T - HTTP Body
+ * @typeParam U - HTTP URL Path Parameter
+ * @typeParam K - HTTP URL Path Query Parameter
+ * @typeParam P - HTTP Header
  */
-export interface IValidation<T, U, K, P> {
+export interface IValidation<
+  T extends BodyType,
+  U extends PathParameterType,
+  K extends QueryParameterType,
+  P extends HeaderType
+> {
   /**
    * Validator for Body
    */
@@ -368,15 +444,23 @@ export interface IValidation<T, U, K, P> {
 
 /**
  * Authenticate function Type
+ * @description
+ * Performs user authentication based on event information.
+ * It also allows the permissions specified in roles.
  * @returns Parameters you wish to return in the authentication results
  * e.g. user ID
+ * @typeParam E - User Information
+ * @typeParam M - Authorizable user rights
  */
-export type AuthenticationFunction<E = any> = (event: APIGatewayProxyEvent) => Promise<AuthenticationFunctionResult<E>>;
+export type AuthenticationFunction<E extends UserInfoType = any, M extends UserRoleType = any> = (
+  event: APIGatewayProxyEvent,
+  roles: M
+) => Promise<AuthenticationFunctionResult<E>>;
 
 /**
  * Return type of authentication function
  */
-export type AuthenticationFunctionResult<E> = {
+export type AuthenticationFunctionResult<E extends UserInfoType> = {
   /**
    * Authentication Success Response
    */
@@ -388,6 +472,11 @@ export type AuthenticationFunctionResult<E> = {
   error401: boolean;
 
   /**
+   * Forbidden Response
+   */
+  error403: boolean;
+
+  /**
    * Internal Server Error Response
    */
   error500: boolean;
@@ -395,12 +484,50 @@ export type AuthenticationFunctionResult<E> = {
 
 /**
  * Validation Check Function
- * @returns 引数のバリデーションチェックの結果
+ * @description
+ * ex. `{a: ”XXX” | "YYY", b: number}`
+ * For example, when a is ""XXX"", b can be specified from 1 to 10, when a is "YYY", b can be specified from 11 to 20, and so on.
+ * @returns Result of the argument validation check
  */
-export type ValidationFunction<T = any, U = any, K = any, P = any> = (
+export type ValidationFunction<
+  T extends BodyType = any,
+  U extends PathParameterType = any,
+  K extends QueryParameterType = any,
+  P extends HeaderType = any
+> = (
   validation: IValidation<T, U, K, P>,
   headers: P,
   pathParameters?: U,
   body?: T,
   queryParameters?: K
 ) => Promise<boolean>;
+
+/**
+ * Body Type
+ */
+export type BodyType = Record<string, any>;
+
+/**
+ * Header Type
+ */
+export type HeaderType = Record<string, any>;
+
+/**
+ * PathParameter Type
+ */
+export type PathParameterType = Record<string, any>;
+
+/**
+ * QueryParameter Type
+ */
+export type QueryParameterType = Record<string, any>;
+
+/**
+ * UserInfo Type
+ */
+export type UserInfoType = Record<string, any>;
+
+/**
+ * UserRole Type
+ */
+export type UserRoleType = string | number;

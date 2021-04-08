@@ -11,7 +11,12 @@ import {
 } from './Validator';
 
 export class Validation {
-  public static async check<T, U, K, P>(
+  public static async check<
+    T extends Record<string, any>,
+    U extends Record<string, any>,
+    K extends Record<string, any>,
+    P extends Record<string, any>
+  >(
     validation: IValidation<T, U, K, P>,
     headers: P,
     pathParameters?: U,
