@@ -3,5 +3,5 @@ export type UserType = {
   role: Role;
 };
 
-const roleList = ['admin', 'user'] as const;
-type Role = typeof roleList[number];
+export const roleList = ['admin', 'user'] as const;
+export type Role = typeof roleList[number];

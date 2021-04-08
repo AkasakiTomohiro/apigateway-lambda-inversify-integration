@@ -6,14 +6,15 @@ import { UserType } from '../User';
 export class TestController extends HttpMethodController<UserType> {
   public constructor() {
     super();
-    this.setMethod('GET', {
-      func: this.get,
+    this.setMethod<TestController, never, never, never, any>('GET', {
+      func: 'get',
+      roles: [],
       isAuthentication: true,
       validation: {}
     });
   }
 
-  private async get(
+  public async get(
     event: CallFunctionEventParameter<UserType, never, never, never, any>
   ): Promise<APIGatewayProxyResult> {
     return {
