@@ -112,6 +112,9 @@ export abstract class HttpMethodController<E extends UserInfoType = never, M ext
     if (condition === undefined) {
       return HttpMethodController.badRequestResponse;
     } else {
+      // API Gateway Body is a string type, so convert it to an object type.
+      event.body = event.body ? JSON.parse(event.body) : null;
+
       const authResult = await HttpMethodController.auth<E>(event, condition);
       if (authResult.error401) {
         return HttpMethodController.unauthorizeErrorResponse;
