@@ -189,6 +189,26 @@ describe('HttpMethodController', () => {
       expect(test).toBeMethodDefied('GET').toBeMethodFunction('GET', 'get').toBeMethodAuthentication('GET');
     });
 
+    it('権限が不足している場合:403', async () => {
+      /* --------------------------- テストの前処理 --------------------------- */
+      const test = new Test3Controller();
+      const event: any = { httpMethod: 'GET' };
+      HttpMethodController.authenticationFunc = jest
+        .fn()
+        .mockResolvedValue({ error401: false, error403: true, error500: false });
+
+      const spy = jest.spyOn(Validation, 'check').mockResolvedValue(true);
+
+      /* ------------------------ テスト対象関数を実行 ------------------------ */
+      const result = await test.handler(event);
+
+      /* ------------------------------ 評価項目 ------------------------------ */
+      expect(result).toEqual(HttpMethodController.forbiddenErrorResponse);
+      expect(HttpMethodController.authenticationFunc).toBeCalled();
+      expect(spy).not.toBeCalled();
+      expect(test).toBeMethodDefied('GET').toBeMethodFunction('GET', 'get').toBeMethodAuthentication('GET');
+    });
+
     it('カスタムバリデーションがInternalServerErrorの場合', async () => {
       /* --------------------------- テストの前処理 --------------------------- */
       const test = new Test4Controller();
@@ -247,6 +267,7 @@ class Test1Controller extends HttpMethodController<any> {
     super();
     this.setMethod<Test1Controller, never, never, never, any>('GET', {
       func: 'get',
+      roles: [],
       isAuthentication: false,
       validation: {}
     });
@@ -265,6 +286,7 @@ class Test2Controller extends HttpMethodController<any> {
     super();
     this.setMethod<Test2Controller, never, never, never, any>('GET', {
       func: 'get',
+      roles: [],
       isAuthentication: false,
       validation: {}
     });
@@ -282,6 +304,7 @@ class Test3Controller extends HttpMethodController<any> {
     super();
     this.setMethod<Test3Controller, never, never, never, any>('GET', {
       func: 'get',
+      roles: [],
       isAuthentication: true,
       validation: {}
     });
@@ -300,6 +323,7 @@ class Test4Controller extends HttpMethodController<any> {
     super();
     this.setMethod<Test4Controller, never, never, never, any>('GET', {
       func: 'get',
+      roles: [],
       isAuthentication: false,
       validation: {},
       customValidationFunc: this.getCustomValidation
@@ -331,6 +355,7 @@ class Test5Controller extends HttpMethodController<any> {
     super();
     this.setMethod<Test5Controller, never, never, never, any>('GET', {
       func: 'get',
+      roles: [],
       isAuthentication: false,
       validation: {},
       customValidationFunc: this.getCustomValidation
@@ -358,6 +383,7 @@ class Test6Controller extends HttpMethodController<any> {
     super();
     this.setMethod<Test6Controller, never, never, never, any>('GET', {
       func: 'get',
+      roles: [],
       isAuthentication: false,
       validation: {},
       customValidationFunc: this.getCustomValidation
