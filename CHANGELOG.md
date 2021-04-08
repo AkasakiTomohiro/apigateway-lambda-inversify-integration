@@ -22,3 +22,7 @@ Added `apigateway-lambda-inversify-integration-jest` library, adjusted for v3.0.
 - Extend functionality to allow for implementation of authorization mechanisms.
 - Redefine Body, Header, Path Parameter, and Query Parameter types.
 - Perform JSON parsing when event.body is non-null in the handler function.
+
+## v4.0.1
+
+Fixed upload error.
